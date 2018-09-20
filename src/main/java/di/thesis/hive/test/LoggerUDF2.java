@@ -6,9 +6,11 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Level;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,23 +26,43 @@ public class LoggerUDF2 extends GenericUDF {
         if (objectInspectors.length!=1)
             throw new UDFArgumentLengthException("TestUDF takes 1 argument!");
 
-        mbb1 = (SettableStructObjectInspector) objectInspectors[0];
+        try {
 
-        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+mbb1.getAllStructFieldRefs().toString());
+            mbb1 = (SettableStructObjectInspector) objectInspectors[0];
 
-        HashSet c=new HashSet();
-        c.add("minx");
-        c.add("maxx");
+            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " + mbb1.getAllStructFieldRefs().toString());
 
-        c.add("miny");
-        c.add("maxy");
+            HashSet c = new HashSet();
+            c.add("id");
+            c.add("minx");
+            c.add("maxx");
 
-        c.add("mint");
-        c.add("maxt");
+            c.add("miny");
+            c.add("maxy");
 
-        String str = String.valueOf(c.containsAll(mbb1.getAllStructFieldRefs()));
+            c.add("mint");
+            c.add("maxt");
 
-        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+str);
+
+            Iterator<StructField> it = (Iterator<StructField>) mbb1.getAllStructFieldRefs().iterator();
+
+            boolean check = true;
+
+            while (it.hasNext()) {
+                if (!c.contains(it.next().getFieldName())) {
+                    check = false;
+                }
+            }
+
+
+            if (check) {
+                LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " + check);
+            } else {
+                throw new UDFArgumentException("Wrong box structure (var names)");
+            }
+        } catch (RuntimeException e) {
+            throw new UDFArgumentException(e);
+        }
 
         //FAILED: RuntimeException cannot find field kati pou den uparxei from [0:id, 1:minx, 2:maxx, 3:miny, 4:maxy, 5:mint, 6:maxt]
 
