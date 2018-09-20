@@ -2,9 +2,12 @@ package di.thesis.hive.test;
 
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
+import org.apache.hadoop.hive.ql.io.orc.OrcStruct;
+import org.apache.hadoop.hive.ql.io.parquet.serde.ArrayWritableObjectInspector;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
@@ -15,7 +18,7 @@ import java.util.logging.Logger;
 
 public class LoggerUDF2 extends GenericUDF {
 
-    private StructObjectInspector mbb1;
+    private SettableStructObjectInspector mbb1;
     private final static Logger LOGGER = Logger.getLogger(LoggerUDF2.class.getName());
 
 
@@ -24,7 +27,7 @@ public class LoggerUDF2 extends GenericUDF {
         if (objectInspectors.length!=1)
             throw new UDFArgumentLengthException("TestUDF takes 1 argument!");
 
-        mbb1 = (StandardStructObjectInspector) objectInspectors[0];
+        mbb1 = (SettableStructObjectInspector) objectInspectors[0];
 
         LOGGER.log(Level.INFO, mbb1.getAllStructFieldRefs().toString());
 
