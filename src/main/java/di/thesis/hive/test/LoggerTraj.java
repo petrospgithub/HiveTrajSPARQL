@@ -1,5 +1,7 @@
 package di.thesis.hive.test;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -10,15 +12,12 @@ import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspect
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class LoggerTraj extends GenericUDF {
 
     private ListObjectInspector listOI;
     private SettableStructObjectInspector structOI;
-    private final static Logger LOGGER = Logger.getLogger(LoggerTraj.class.getName());
-
+    private static final Log LOG = LogFactory.getLog(LoggerUDF2.class.getName());
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
@@ -39,14 +38,13 @@ public class LoggerTraj extends GenericUDF {
 
             String str = String.valueOf(c.containsAll(structOI.getAllStructFieldRefs()));
 
-            LOGGER.log(Level.INFO, str);
+            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+str);
 
         } catch (RuntimeException e) {
             throw new UDFArgumentException(e);
         }
 
         return PrimitiveObjectInspectorFactory.writableBooleanObjectInspector;
-
 
     }
 

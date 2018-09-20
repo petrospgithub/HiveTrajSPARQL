@@ -2,25 +2,22 @@ package di.thesis.hive.test;
 
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
-import org.apache.hadoop.hive.ql.io.orc.OrcStruct;
-import org.apache.hadoop.hive.ql.io.parquet.serde.ArrayWritableObjectInspector;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 import java.util.HashSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class LoggerUDF2 extends GenericUDF {
 
     private SettableStructObjectInspector mbb1;
-    private final static Logger LOGGER = Logger.getLogger(LoggerUDF2.class.getName());
-
+   // private final static Logger LOGGER = Logger.getLogger(LoggerUDF2.class.getName());
+    private static final Log LOG = LogFactory.getLog(LoggerUDF2.class.getName());
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
@@ -29,7 +26,7 @@ public class LoggerUDF2 extends GenericUDF {
 
         mbb1 = (SettableStructObjectInspector) objectInspectors[0];
 
-        LOGGER.log(Level.INFO, mbb1.getAllStructFieldRefs().toString());
+        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+mbb1.getAllStructFieldRefs().toString());
 
         HashSet c=new HashSet();
         c.add("minx");
@@ -43,7 +40,7 @@ public class LoggerUDF2 extends GenericUDF {
 
         String str = String.valueOf(c.containsAll(mbb1.getAllStructFieldRefs()));
 
-        LOGGER.log(Level.INFO, str);
+        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+str);
 
         //FAILED: RuntimeException cannot find field kati pou den uparxei from [0:id, 1:minx, 2:maxx, 3:miny, 4:maxy, 5:mint, 6:maxt]
 
