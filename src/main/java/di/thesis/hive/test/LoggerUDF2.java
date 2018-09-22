@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import utils.checking;
 
 public class LoggerUDF2 extends GenericUDF {
 
@@ -32,28 +33,7 @@ public class LoggerUDF2 extends GenericUDF {
 
             LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " + mbb1.getAllStructFieldRefs().toString());
 
-            HashSet c = new HashSet();
-            c.add("id");
-            c.add("minx");
-            c.add("maxx");
-
-            c.add("miny");
-            c.add("maxy");
-
-            c.add("mint");
-            c.add("maxt");
-
-
-            Iterator<StructField> it = (Iterator<StructField>) mbb1.getAllStructFieldRefs().iterator();
-
-            boolean check = true;
-
-            while (it.hasNext()) {
-                if (!c.contains(it.next().getFieldName())) {
-                    check = false;
-                }
-            }
-
+            boolean check = checking.mbb(mbb1);
 
             if (check) {
                 LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " + check);

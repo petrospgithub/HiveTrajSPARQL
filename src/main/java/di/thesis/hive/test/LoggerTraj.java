@@ -9,11 +9,8 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-
-import java.util.HashSet;
-import java.util.Iterator;
+import utils.checking;
 
 public class LoggerTraj extends GenericUDF {
 
@@ -31,24 +28,9 @@ public class LoggerTraj extends GenericUDF {
             listOI = (ListObjectInspector) objectInspectors[0];
             structOI=(SettableStructObjectInspector)listOI.getListElementObjectInspector();
 
-            HashSet c=new HashSet();
-            c.add("longitude");
-            c.add("latitude");
+            boolean check= checking.point(structOI);
 
-            c.add("timestamp");
-
-
-            boolean check=true;
-            Iterator<StructField> it=(Iterator<StructField>)structOI.getAllStructFieldRefs().iterator();
-
-
-            while (it.hasNext()) {
-                if (!c.contains(it.next().getFieldName())) {
-                    check=false;
-                }
-            }
-
-            if (check) {
+            if(check) {
                 LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+check);
             } else {
                 throw new UDFArgumentException("Wrong traj points structure (var names)");
