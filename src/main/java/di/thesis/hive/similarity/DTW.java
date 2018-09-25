@@ -9,6 +9,7 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
@@ -28,10 +29,16 @@ public class DTW extends GenericUDF {
     private IntObjectInspector fast;
     private StringObjectInspector func_name;
 
+    private DoubleObjectInspector accept_dist;
+
+    private IntObjectInspector min_ts_extend;
+    private IntObjectInspector max_ts_extend;
+
+
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
-        if (objectInspectors.length!=4)
-            throw new UDFArgumentLengthException("ST_Intersects3D only takes 2 arguments!");
+        if (objectInspectors.length!=7)
+            throw new UDFArgumentLengthException("DTW only takes 5 arguments!");
 
         try {
             trajectoryA_listOI = (StandardListObjectInspector) objectInspectors[0];
@@ -43,6 +50,12 @@ public class DTW extends GenericUDF {
             fast = (IntObjectInspector)objectInspectors[2];
             func_name=(StringObjectInspector)objectInspectors[3];
 
+            accept_dist=(DoubleObjectInspector) objectInspectors[4];
+
+            min_ts_extend=(IntObjectInspector) objectInspectors[5];
+
+            max_ts_extend=(IntObjectInspector) objectInspectors[6];
+
 
             boolean check= checking.point(trajectoryA_structOI);
             boolean check2= checking.point(trajectoryB_structOI);
@@ -50,8 +63,6 @@ public class DTW extends GenericUDF {
             if(!check || !check2){
                 throw new UDFArgumentException("Invalid traj points structure (var names)");
             }
-
-
 
         } catch (RuntimeException e) {
             throw new UDFArgumentException(e);
@@ -73,16 +84,12 @@ public class DTW extends GenericUDF {
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[3].get());
 
-        double[][] DTW_distance_matrix=new double[trajectoryA_length][trajectoryB_length];
+        double d=accept_dist.get(deferredObjects[4]);
 
-        double distance;
+        int minTSext=min_ts_extend.get(deferredObjects[5]);
+        int maxTSext=max_ts_extend.get(deferredObjects[6]);
+
         Distance func;
-
-        double trajA_longitude;
-        double trajA_latitude;
-
-        double trajB_longitude;
-        double trajB_latitude;
 
         if (Objects.equals(f, "Havershine")) {
             func= Haversine$.MODULE$;
@@ -94,6 +101,59 @@ public class DTW extends GenericUDF {
             throw new HiveException("No valid function");
         }
 
+        long min_tsA = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, 0), trajectoryA_structOI.getStructFieldRef("timestamp")));
+        long max_tsA = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, trajectoryA_length-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
+
+        long min_tsB = (long) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajA, 0), trajectoryB_structOI.getStructFieldRef("timestamp")));
+        long max_tsB = (long) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajA, trajectoryA_length-1), trajectoryB_structOI.getStructFieldRef("timestamp")));
+
+        //an einai arnhtika kai ta 2 sigoura DTW
+        //an einai 8etika kai ta 2 koitaw an kanoun overlap
+
+        if (minTSext<0 || maxTSext<0) {
+            double calc=calculate(trajectoryA_length, trajectoryB_length, trajA, trajB, func, w);
+
+            double traj_dist=(calc / (double)Math.min(trajectoryA_length,trajectoryB_length));
+
+            if (traj_dist<=d) {
+                return new DoubleWritable(traj_dist);
+            } else {
+                return null;
+            }
+
+        } else if ( (min_tsA-minTSext)<=max_tsB && min_tsB<=(max_tsA+maxTSext) ) {
+            double calc=calculate(trajectoryA_length, trajectoryB_length, trajA, trajB, func, w);
+
+            double traj_dist=(calc / (double)Math.min(trajectoryA_length,trajectoryB_length));
+
+            if (traj_dist<=d) {
+                return new DoubleWritable(traj_dist);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+
+    }
+
+    @Override
+    public String getDisplayString(String[] strings) {
+        return "foo";
+    }
+
+
+    private double calculate (int trajectoryA_length, int trajectoryB_length, Object trajA, Object trajB, Distance func, int w) {
+
+        double[][] DTW_distance_matrix=new double[trajectoryA_length][trajectoryB_length];
+
+        double trajA_longitude;
+        double trajA_latitude;
+
+        double trajB_longitude;
+        double trajB_latitude;
+
+        double distance;
 
         trajA_longitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, 0), trajectoryA_structOI.getStructFieldRef("longitude")));
         trajA_latitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, 0), trajectoryA_structOI.getStructFieldRef("latitude")));
@@ -136,11 +196,8 @@ public class DTW extends GenericUDF {
 
             }
         }
-        return new DoubleWritable(DTW_distance_matrix[trajectoryA_length-1][trajectoryB_length-1]);
+
+        return DTW_distance_matrix[trajectoryA_length-1][trajectoryB_length-1];
     }
 
-    @Override
-    public String getDisplayString(String[] strings) {
-        return "foo";
-    }
 }

@@ -137,20 +137,20 @@ public class ST_Intersects3D extends GenericUDF{
 
 
         if (mode==1) {
-            return new BooleanWritable(mbb_overlap_trajectory(deferredObjects[1], deferredObjects[0]));
+            return new BooleanWritable(mbb_overlap_trajectory(deferredObjects[1], deferredObjects[0], min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat, min_ext_ts, max_ext_ts));
         } else if (mode==2) {
-            return new BooleanWritable(mbb_overlap_trajectory(deferredObjects[0], deferredObjects[1]));
+            return new BooleanWritable(mbb_overlap_trajectory(deferredObjects[0], deferredObjects[1], min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat, min_ext_ts, max_ext_ts));
         }
         else if (mode==3) {
 
-            double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("minx")));
-            double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxx")));
+            double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("minx"))) - min_ext_lon;
+            double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxx"))) + max_ext_lon;
 
-            double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("miny")));
-            double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxy")));
+            double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("miny"))) - min_ext_lat;
+            double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxy"))) + max_ext_lat;
 
-            long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("mint")));
-            long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxt")));
+            long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("mint"))) - min_ext_ts;
+            long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxt"))) - max_ext_ts;
 
 /***********************************************************************************************************************************/
             double mbb2_minlon=  (double)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("minx")));
@@ -175,18 +175,19 @@ public class ST_Intersects3D extends GenericUDF{
         return "foo";
     }
 
-    private boolean mbb_overlap_trajectory(DeferredObject deferredObjects_mbb, DeferredObject deferredObjects_trajectory) {
+    private boolean mbb_overlap_trajectory(DeferredObject deferredObjects_mbb, DeferredObject deferredObjects_trajectory , double min_ext_lon, double max_ext_lon,
+                                           double min_ext_lat, double max_ext_lat, long min_ext_ts, long max_ext_ts) {
         try {
 
             /*mbb1*/
-            double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("minx")));
-            double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxx")));
+            double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("minx"))) - min_ext_lon;
+            double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxx"))) + max_ext_lon;
 
-            double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("miny")));
-            double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxy")));
+            double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("miny"))) - min_ext_lat;
+            double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxy"))) + max_ext_lat;
 
-            long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("mint")));
-            long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt")));
+            long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("mint"))) - min_ext_ts;
+            long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt"))) - max_ext_ts;
             /*mbb1*/
 
             int trajectory_length=listOI.getListLength(deferredObjects_trajectory.get());

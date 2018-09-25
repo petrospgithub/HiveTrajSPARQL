@@ -16,7 +16,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class SP_IndexIntersects extends GenericUDF {
 
         return ObjectInspectorFactory
                 .getStandardListObjectInspector(PrimitiveObjectInspectorFactory
-                        .writableIntObjectInspector);
+                        .writableLongObjectInspector);
     }
 
 
@@ -56,7 +56,7 @@ public class SP_IndexIntersects extends GenericUDF {
 
         BytesWritable query=queryIO.getPrimitiveWritableObject(arguments[0].get());
         BytesWritable tree=treeIO.getPrimitiveWritableObject(arguments[1].get());
-        ArrayList<IntWritable> result = new ArrayList<IntWritable>();
+        ArrayList<LongWritable> result = new ArrayList<>();
 
         ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
         ObjectInput in=null;
@@ -87,7 +87,7 @@ public class SP_IndexIntersects extends GenericUDF {
 
                 Integer entry=(Integer)((AbstractMap.SimpleImmutableEntry)tree_results).getKey();
 
-                result.add(new IntWritable(entry));
+                result.add(new LongWritable(entry));
             }
 
             return result;

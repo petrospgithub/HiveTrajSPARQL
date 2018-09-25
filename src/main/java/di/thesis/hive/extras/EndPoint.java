@@ -56,7 +56,7 @@ public class EndPoint extends GenericUDF {
             ret[2]=new DoubleWritable(latitude);
             return ret;
         } catch (RuntimeException e) {
-            throw e;
+            throw new HiveException(e);
         }
     }
 

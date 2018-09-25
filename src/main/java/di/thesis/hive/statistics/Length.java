@@ -52,7 +52,7 @@ public class Length extends GenericUDF{
         String arg = func_name.getPrimitiveJavaObject(deferredObjects[1].get());
         int trajectory_length=listOI.getListLength(deferredObjects[0].get());
         double distance=0;
-        Distance func =null;
+        Distance func ;
 
         double curr_longitude;
         double curr_latitude;
