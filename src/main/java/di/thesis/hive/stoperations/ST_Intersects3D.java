@@ -20,14 +20,14 @@ public class ST_Intersects3D extends GenericUDF{
     private SettableStructObjectInspector mbb1;
     private SettableStructObjectInspector mbb2;
 
-    private DoubleObjectInspector minx_extend;
-    private DoubleObjectInspector maxx_extend;
+    private DoubleObjectInspector minx_tolerance;
+    private DoubleObjectInspector maxx_tolerance;
 
-    private DoubleObjectInspector miny_extend;
-    private DoubleObjectInspector maxy_extend;
+    private DoubleObjectInspector miny_tolerance;
+    private DoubleObjectInspector maxy_tolerance;
 
-    private IntObjectInspector mint_extend;
-    private IntObjectInspector maxt_extend;
+    private IntObjectInspector mint_tolerance;
+    private IntObjectInspector maxt_tolerance;
 
 
     private int mode;
@@ -53,14 +53,14 @@ public class ST_Intersects3D extends GenericUDF{
 
         try {
 
-            minx_extend=(DoubleObjectInspector) minxOI;
-            maxx_extend=(DoubleObjectInspector) maxxOI;
+            minx_tolerance=(DoubleObjectInspector) minxOI;
+            maxx_tolerance=(DoubleObjectInspector) maxxOI;
 
-            miny_extend=(DoubleObjectInspector) minyOI;
-            maxy_extend=(DoubleObjectInspector) maxyOI;
+            miny_tolerance=(DoubleObjectInspector) minyOI;
+            maxy_tolerance=(DoubleObjectInspector) maxyOI;
 
-            mint_extend=(IntObjectInspector) mintOI;
-            maxt_extend=(IntObjectInspector) maxtOI;
+            mint_tolerance=(IntObjectInspector) mintOI;
+            maxt_tolerance=(IntObjectInspector) maxtOI;
 
             if (a instanceof ListObjectInspector && b instanceof SettableStructObjectInspector) {
 
@@ -119,14 +119,14 @@ public class ST_Intersects3D extends GenericUDF{
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
 
 
-        double min_ext_lon=minx_extend.get(deferredObjects[2]);
-        double max_ext_lon=maxx_extend.get(deferredObjects[3]);
+        double min_ext_lon=minx_tolerance.get(deferredObjects[2]);
+        double max_ext_lon=maxx_tolerance.get(deferredObjects[3]);
 
-        double min_ext_lat=miny_extend.get(deferredObjects[4]);
-        double max_ext_lat=maxy_extend.get(deferredObjects[5]);
+        double min_ext_lat=miny_tolerance.get(deferredObjects[4]);
+        double max_ext_lat=maxy_tolerance.get(deferredObjects[5]);
 
-        long min_ext_ts=mint_extend.get(deferredObjects[6]);
-        long max_ext_ts=maxt_extend.get(deferredObjects[7]);
+        long min_ext_ts=mint_tolerance.get(deferredObjects[6]);
+        long max_ext_ts=maxt_tolerance.get(deferredObjects[7]);
 
 
         if(min_ext_lon<0 ||
@@ -205,9 +205,9 @@ public class ST_Intersects3D extends GenericUDF{
                 trajectory_timestamp = (long) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("timestamp")));
 
                 if (
-                Intersects.apply(mbb1_minlon,mbb1_maxlon,mbb1_minlat,mbb1_maxlat,mbb1_mints,mbb1_maxts,
-                        trajectory_longitude,trajectory_latitude,trajectory_timestamp)
-                        ) {
+                        Intersects.apply(mbb1_minlon,mbb1_maxlon,mbb1_minlat,mbb1_maxlat,mbb1_mints,mbb1_maxts,
+                                trajectory_longitude,trajectory_latitude,trajectory_timestamp)
+                ) {
                     result= true;
                     break;
                 }

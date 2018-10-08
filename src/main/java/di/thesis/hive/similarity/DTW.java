@@ -31,8 +31,8 @@ public class DTW extends GenericUDF {
 
     private DoubleObjectInspector accept_dist;
 
-    private IntObjectInspector min_ts_extend;
-    private IntObjectInspector max_ts_extend;
+    private IntObjectInspector min_ts_tolerance;
+    private IntObjectInspector max_ts_tolerance;
 
 
     @Override
@@ -52,9 +52,9 @@ public class DTW extends GenericUDF {
 
             accept_dist=(DoubleObjectInspector) objectInspectors[4];
 
-            min_ts_extend=(IntObjectInspector) objectInspectors[5];
+            min_ts_tolerance=(IntObjectInspector) objectInspectors[5];
 
-            max_ts_extend=(IntObjectInspector) objectInspectors[6];
+            max_ts_tolerance=(IntObjectInspector) objectInspectors[6];
 
 
             boolean check= checking.point(trajectoryA_structOI);
@@ -86,8 +86,8 @@ public class DTW extends GenericUDF {
 
         double d=accept_dist.get(deferredObjects[4]);
 
-        int minTSext=min_ts_extend.get(deferredObjects[5]);
-        int maxTSext=max_ts_extend.get(deferredObjects[6]);
+        int minTSext=min_ts_tolerance.get(deferredObjects[5]);
+        int maxTSext=max_ts_tolerance.get(deferredObjects[6]);
 
         Distance func;
 
