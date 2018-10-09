@@ -62,8 +62,8 @@ public class Trajectory2Linestring extends GenericUDF {
 
                 linestring.lineTo(lon, lat);
             }
-            OGCGeometry ogcObj = OGCGeometry.createFromEsriGeometry(linestring, SpatialReference.create(4326));
-            return new Text(ogcObj.asGeoJson());
+            OGCGeometry ogcObj = OGCGeometry.createFromEsriGeometry(linestring, SpatialReference.create(3857));
+            return new Text(ogcObj.asText());
         } catch (RuntimeException e) {
             throw new HiveException(e);
         }

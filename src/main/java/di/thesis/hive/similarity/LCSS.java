@@ -1,14 +1,15 @@
 package di.thesis.hive.similarity;
 
-import distance.Distance;
-import distance.Euclidean$;
-import distance.Haversine$;
-import distance.Manhattan$;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
+import di.thesis.indexing.distance.PointDistance;
+import di.thesis.indexing.distance.PointManhattan;
+import di.thesis.indexing.distance.Pointeuclidean;
+import di.thesis.indexing.distance.Pointhaversine;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
+
+import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
@@ -17,7 +18,6 @@ import org.apache.hadoop.io.DoubleWritable;
 import utils.checking;
 
 import java.util.Objects;
-
 public class LCSS extends GenericUDF {
 
     private ListObjectInspector trajectoryA_listOI;
@@ -79,7 +79,7 @@ public class LCSS extends GenericUDF {
 
         int[][] LCS_distance_matrix = new int[trajectoryA_length+1][trajectoryB_length+1];
 
-        Distance func;
+        PointDistance func;
 
         double trajA_longitude;
         double trajA_latitude;
@@ -92,11 +92,11 @@ public class LCSS extends GenericUDF {
         double distance;
 
         if (Objects.equals(f, "Havershine")) {
-            func= Haversine$.MODULE$;
+            func= new Pointhaversine();
         } else if (Objects.equals(f, "Manhattan")) {
-            func= Euclidean$.MODULE$;
+            func= new Pointeuclidean();
         } else if (Objects.equals(f, "Euclidean")) {
-            func= Manhattan$.MODULE$;
+            func= new PointManhattan();
         } else {
             throw new HiveException("No valid function");
         }
@@ -122,7 +122,7 @@ public class LCSS extends GenericUDF {
                 trajB_timestamp = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajB, i-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
 
 
-                distance=func.get(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
+                distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
                 if (distance<=error && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
                     LCS_distance_matrix[i][j] = LCS_distance_matrix[i - 1][j - 1] + 1;
                 } else {
@@ -147,7 +147,7 @@ public class LCSS extends GenericUDF {
             trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("latitude")));
             trajB_timestamp = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajB, b-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
 
-            distance=func.get(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
+            distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
             if(distance<=error && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
                 a--;
                 b--;

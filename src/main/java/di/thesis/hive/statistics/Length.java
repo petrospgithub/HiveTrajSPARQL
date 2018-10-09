@@ -1,6 +1,12 @@
 package di.thesis.hive.statistics;
 
-import distance.*;
+import di.thesis.hive.test.LoggerUDF2;
+import di.thesis.indexing.distance.PointDistance;
+import di.thesis.indexing.distance.PointManhattan;
+import di.thesis.indexing.distance.Pointeuclidean;
+import di.thesis.indexing.distance.Pointhaversine;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -20,6 +26,9 @@ public class Length extends GenericUDF{
     private ListObjectInspector listOI;
     private SettableStructObjectInspector structOI;
     private StringObjectInspector func_name=null;
+
+    private static final Log LOG = LogFactory.getLog(Length.class.getName());
+
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
@@ -49,10 +58,10 @@ public class Length extends GenericUDF{
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
         Object traj=deferredObjects[0].get();
 
-        String arg = func_name.getPrimitiveJavaObject(deferredObjects[1].get());
+        String f = func_name.getPrimitiveJavaObject(deferredObjects[1].get());
         int trajectory_length=listOI.getListLength(deferredObjects[0].get());
         double distance=0;
-        Distance func ;
+        PointDistance func ;
 
         double curr_longitude;
         double curr_latitude;
@@ -60,12 +69,13 @@ public class Length extends GenericUDF{
         double next_longitude;
         double next_latitude;
 
-        if (Objects.equals(arg, "Havershine")) {
-            func=Haversine$.MODULE$;
-        } else if (Objects.equals(arg, "Manhattan")) {
-            func= Euclidean$.MODULE$;
-        } else if (Objects.equals(arg, "Euclidean")) {
-            func= Manhattan$.MODULE$;
+
+        if (Objects.equals(f, "Havershine")) {
+            func= new Pointhaversine();
+        } else if (Objects.equals(f, "Manhattan")) {
+            func= new Pointeuclidean();
+        } else if (Objects.equals(f, "Euclidean")) {
+            func= new PointManhattan();
         } else {
             throw new HiveException("No valid function");
         }
@@ -77,7 +87,14 @@ public class Length extends GenericUDF{
             next_longitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i+1), structOI.getStructFieldRef("longitude")));
             next_latitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i+1), structOI.getStructFieldRef("latitude")));
 
-            distance+= func.get(curr_latitude, curr_longitude, next_latitude, next_longitude);
+            distance+= func.calculate(curr_latitude, curr_longitude, next_latitude, next_longitude);
+/*
+            LOG.warn("lon1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+curr_longitude);
+            LOG.warn("lat1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+curr_latitude);
+            LOG.warn("lon2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+next_longitude);
+            LOG.warn("lat2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+next_latitude);
+            LOG.warn("DISTANCE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+distance);
+*/
         }
 
         return new DoubleWritable(distance);

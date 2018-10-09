@@ -1,10 +1,6 @@
 STIndexing source code github -> https://github.com/petrospgithub/STIndexing
 
-mvn install:install-file \ 
--Dfile=external_jar/STIndexing-jar-with-dependencies.jar \
--DgroupId=di.thesis \ 
--DartifactId=stindexing \
--Dversion=1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=<path>/STIndexing-jar-with-dependencies.jar -DgroupId=di.thesis -DartifactId=stindexing -Dversion=1.0 -Dpackaging=jar
 
 Java 1.8
 Scala 2.11.8 must be install in Hive (scala-library jar @ $HIVE_HOME/lib/)

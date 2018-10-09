@@ -1,14 +1,15 @@
 package di.thesis.hive.similarity;
 
-import distance.Distance;
-import distance.Euclidean$;
-import distance.Haversine$;
-import distance.Manhattan$;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
+import di.thesis.indexing.distance.PointDistance;
+import di.thesis.indexing.distance.PointManhattan;
+import di.thesis.indexing.distance.Pointeuclidean;
+import di.thesis.indexing.distance.Pointhaversine;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
+
+import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
@@ -89,14 +90,14 @@ public class DTW extends GenericUDF {
         int minTSext=min_ts_tolerance.get(deferredObjects[5]);
         int maxTSext=max_ts_tolerance.get(deferredObjects[6]);
 
-        Distance func;
+        PointDistance func;
 
         if (Objects.equals(f, "Havershine")) {
-            func= Haversine$.MODULE$;
+            func= new Pointhaversine();
         } else if (Objects.equals(f, "Manhattan")) {
-            func= Euclidean$.MODULE$;
+            func= new Pointeuclidean();
         } else if (Objects.equals(f, "Euclidean")) {
-            func= Manhattan$.MODULE$;
+            func= new PointManhattan();
         } else {
             throw new HiveException("No valid function");
         }
@@ -143,7 +144,7 @@ public class DTW extends GenericUDF {
     }
 
 
-    private double calculate (int trajectoryA_length, int trajectoryB_length, Object trajA, Object trajB, Distance func, int w) {
+    private double calculate (int trajectoryA_length, int trajectoryB_length, Object trajA, Object trajB, PointDistance func, int w) {
 
         double[][] DTW_distance_matrix=new double[trajectoryA_length][trajectoryB_length];
 
@@ -161,11 +162,11 @@ public class DTW extends GenericUDF {
         trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, 0), trajectoryB_structOI.getStructFieldRef("longitude")));
         trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, 0), trajectoryB_structOI.getStructFieldRef("latitude")));
 
-        DTW_distance_matrix[0][0]=func.get(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
+        DTW_distance_matrix[0][0]=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
         for (int i = 0; i < trajectoryB_length; i++) {
             trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, i), trajectoryB_structOI.getStructFieldRef("longitude")));
             trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, i), trajectoryB_structOI.getStructFieldRef("latitude")));
-            DTW_distance_matrix[0][i] = func.get(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
+            DTW_distance_matrix[0][i] = func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
             //LOGGER.log(Level.WARNING, String.valueOf(func.distance(trajA_latitude, trajA_longitude, trajB_longitude, trajB_latitude)));
         }
 
@@ -175,7 +176,7 @@ public class DTW extends GenericUDF {
             trajA_longitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i), trajectoryA_structOI.getStructFieldRef("longitude")));
             trajA_latitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i), trajectoryA_structOI.getStructFieldRef("latitude")));
 
-            DTW_distance_matrix[i][0] = DTW_distance_matrix[0][0]=func.get(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
+            DTW_distance_matrix[i][0] = DTW_distance_matrix[0][0]=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
         }
 
         w = Math.max(w, Math.abs(trajectoryA_length-trajectoryB_length)); // adapt window size (*)
@@ -189,7 +190,7 @@ public class DTW extends GenericUDF {
                 trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j - 1), trajectoryB_structOI.getStructFieldRef("longitude")));
                 trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j - 1), trajectoryB_structOI.getStructFieldRef("latitude")));
 
-                distance=func.get(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
+                distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
 
                 DTW_distance_matrix[i][j]=distance+
                         Math.min(Math.min(DTW_distance_matrix[i-1][j], DTW_distance_matrix[i][j-1]), DTW_distance_matrix[i-1][j-1]);
