@@ -119,22 +119,20 @@ public class ST_Intersects3D extends GenericUDF{
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
 
 
-        double min_ext_lon=minx_tolerance.get(deferredObjects[2]);
-        double max_ext_lon=maxx_tolerance.get(deferredObjects[3]);
+        double min_ext_lon=minx_tolerance.get(deferredObjects[2].get());
+        double max_ext_lon=maxx_tolerance.get(deferredObjects[3].get());
 
-        double min_ext_lat=miny_tolerance.get(deferredObjects[4]);
-        double max_ext_lat=maxy_tolerance.get(deferredObjects[5]);
+        double min_ext_lat=miny_tolerance.get(deferredObjects[4].get());
+        double max_ext_lat=maxy_tolerance.get(deferredObjects[5].get());
 
-        long min_ext_ts=mint_tolerance.get(deferredObjects[6]);
-        long max_ext_ts=maxt_tolerance.get(deferredObjects[7]);
+        long min_ext_ts=mint_tolerance.get(deferredObjects[6].get());
+        long max_ext_ts=maxt_tolerance.get(deferredObjects[7].get());
 
 
         if(min_ext_lon<0 ||
                 max_ext_lon<0 || min_ext_lat<0 || max_ext_lat<0 || min_ext_ts<0 || max_ext_ts<0){
             throw new RuntimeException("Extend parameters must be posititve!");
         }
-
-
 
         if (mode==1) {
             return new BooleanWritable(mbb_overlap_trajectory(deferredObjects[1], deferredObjects[0], min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat, min_ext_ts, max_ext_ts));
