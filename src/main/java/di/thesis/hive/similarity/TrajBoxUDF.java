@@ -30,7 +30,7 @@ public class TrajBoxUDF extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
-        if (objectInspectors.length!=8)
+        if (objectInspectors.length!=2)
             throw new UDFArgumentLengthException("TrajBoxUDF only takes 2 arguments!");
 
         ObjectInspector a = objectInspectors[0];
