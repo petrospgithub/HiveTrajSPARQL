@@ -44,6 +44,8 @@ public class MbbSTUDF extends GenericUDF{
                     throw new UDFArgumentException("Invalid traj points structure (var names)");
                 }
 
+                mode=1;
+
             }catch (RuntimeException e) {
                 throw new UDFArgumentException(e);
             }
@@ -74,7 +76,7 @@ public class MbbSTUDF extends GenericUDF{
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
         if (mode==1) {
             return Mbb_definiton(deferredObjects);
-        } else {
+        } else if (mode==6) {
             return Mbb_definiton(
                     (double)min_longitude.getPrimitiveJavaObject(deferredObjects[0].get()),
                     (double)max_longitude.getPrimitiveJavaObject(deferredObjects[1].get()),
@@ -83,6 +85,8 @@ public class MbbSTUDF extends GenericUDF{
                     (long)min_timestamp.getPrimitiveJavaObject(deferredObjects[4].get()),
                     (long)max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get())
                     );
+        } else {
+            throw new RuntimeException("Invalid input");
         }
     }
 
