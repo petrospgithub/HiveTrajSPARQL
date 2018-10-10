@@ -95,7 +95,7 @@ public class ST_Intersects3D extends GenericUDF{
                 mbb1=(SettableStructObjectInspector)a;
                 mbb2=(SettableStructObjectInspector)b;
 
-                boolean check = checking.point((SettableStructObjectInspector)b);
+                boolean check = checking.mbb((SettableStructObjectInspector)b);
                 boolean check2 = checking.mbb((SettableStructObjectInspector)a);
 
                 if(!check || !check2){

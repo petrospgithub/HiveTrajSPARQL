@@ -1,7 +1,5 @@
 package di.thesis.hive.stoperations;
 
-import com.vividsolutions.jts.io.ParseException;
-import di.thesis.indexing.spatialextension.STRtreeObjID;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import di.thesis.indexing.types.EnvelopeST;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
@@ -17,14 +15,9 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspecto
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.opengis.geometry.Envelope;
+import org.nustaq.serialization.FSTConfiguration;
 import utils.checking;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,19 +87,19 @@ public class ST_IndexIntersects  extends GenericUDF {
 
         ArrayList<LongWritable> result = new ArrayList<>();
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
-        ObjectInput in=null;
+       // ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
+       // ObjectInput in=null;
 
         try {
 
-            double min_ext_lon=minx_tolerance.get(deferredObjects[2]);
-            double max_ext_lon=maxx_tolerance.get(deferredObjects[3]);
+            double min_ext_lon=minx_tolerance.get(deferredObjects[2].get());
+            double max_ext_lon=maxx_tolerance.get(deferredObjects[3].get());
 
-            double min_ext_lat=miny_tolerance.get(deferredObjects[4]);
-            double max_ext_lat=maxy_tolerance.get(deferredObjects[5]);
+            double min_ext_lat=miny_tolerance.get(deferredObjects[4].get());
+            double max_ext_lat=maxy_tolerance.get(deferredObjects[5].get());
 
-            long min_ext_ts=mint_tolerance.get(deferredObjects[6]);
-            long max_ext_ts=maxt_tolerance.get(deferredObjects[7]);
+            long min_ext_ts=mint_tolerance.get(deferredObjects[6].get());
+            long max_ext_ts=maxt_tolerance.get(deferredObjects[7].get());
 
             if(min_ext_lon<0 ||
                     max_ext_lon<0 || min_ext_lat<0 || max_ext_lat<0 || min_ext_ts<0 || max_ext_ts<0){
@@ -122,25 +115,27 @@ public class ST_IndexIntersects  extends GenericUDF {
             long mbb1_mints=  (long)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")));
             long mbb1_maxts=  (long)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")));
 
-            in = new ObjectInputStream(bis);
-            STRtree3D o = (STRtree3D) in.readObject();
+
+            FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
+
+            STRtree3D retrievedObject = (STRtree3D)conf.asObject(tree.getBytes());
 
             EnvelopeST env=new EnvelopeST(mbb1_minlon-min_ext_lon, mbb1_maxlon+max_ext_lon,
                     mbb1_minlat-min_ext_lat, mbb1_maxlat+max_ext_lat,
                     mbb1_mints-min_ext_ts, mbb1_maxts+max_ext_ts);
 
-            List tree_results=o.queryID(env);
+            List tree_results=retrievedObject.queryID(env);
 
             for (int i=0; i<tree_results.size(); i++) {
 
-                Integer entry=(Integer)((AbstractMap.SimpleImmutableEntry)tree_results).getKey();
+                Long entry=(Long)tree_results.get(i);
 
                 result.add(new LongWritable(entry));
             }
 
             return result;
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (Exception e) {
             throw new HiveException(e);
         }
 

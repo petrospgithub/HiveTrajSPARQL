@@ -39,7 +39,7 @@ public class DTW extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
         if (objectInspectors.length!=7)
-            throw new UDFArgumentLengthException("DTW only takes 5 arguments!");
+            throw new UDFArgumentLengthException("DTW only takes 7 arguments!");
 
         try {
             trajectoryA_listOI = (StandardListObjectInspector) objectInspectors[0];
@@ -85,10 +85,10 @@ public class DTW extends GenericUDF {
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[3].get());
 
-        double d=accept_dist.get(deferredObjects[4]);
+        double d=accept_dist.get(deferredObjects[4].get());
 
-        int minTSext=min_ts_tolerance.get(deferredObjects[5]);
-        int maxTSext=max_ts_tolerance.get(deferredObjects[6]);
+        int minTSext=min_ts_tolerance.get(deferredObjects[5].get());
+        int maxTSext=max_ts_tolerance.get(deferredObjects[6].get());
 
         PointDistance func;
 

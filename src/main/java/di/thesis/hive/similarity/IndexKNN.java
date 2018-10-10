@@ -1,7 +1,6 @@
 package di.thesis.hive.similarity;
 
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
-import di.thesis.indexing.types.EnvelopeST;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
@@ -15,13 +14,9 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspecto
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.nustaq.serialization.FSTConfiguration;
 import utils.checking;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +26,6 @@ public class IndexKNN extends GenericUDF {
     private ListObjectInspector listOI;
     private SettableStructObjectInspector structOI;
 
-    private IntObjectInspector k;
     private DoubleObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
@@ -74,35 +68,29 @@ public class IndexKNN extends GenericUDF {
 
         ArrayList<LongWritable> result = new ArrayList<>();
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
-        ObjectInput in=null;
-
         try {
 
+            FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
-            in = new ObjectInputStream(bis);
-            STRtree3D o = (STRtree3D) in.readObject();
+            STRtree3D retrievedObject = (STRtree3D)conf.asObject(tree.getBytes());
             Object traj=deferredObjects[0].get();
 
             double threshold= dist_threshold.get(deferredObjects[2].get());
             int minTtolerance= minT_tolerance.get(deferredObjects[3].get());
             int maxTtolerance= maxT_tolerance.get(deferredObjects[4].get());
 
-            //int trajectoryA_length=listOI.getListLength(deferredObjects[0].get());
-
-            List tree_results=o.knn(traj, listOI, structOI, threshold, minTtolerance, maxTtolerance);
+            List tree_results=retrievedObject.knn(traj, listOI, structOI, threshold, minTtolerance, maxTtolerance);
 
             for (int i=0; i<tree_results.size(); i++) {
 
-                Integer entry=(Integer)((AbstractMap.SimpleImmutableEntry)tree_results).getKey();
+                Long entry=(Long)tree_results.get(i);
 
                 result.add(new LongWritable(entry));
             }
 
             return result;
 
-
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (Exception e) {
             throw new HiveException(e);
         }
 

@@ -10,6 +10,7 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
+import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
@@ -23,9 +24,6 @@ public class TrajBoxUDF extends GenericUDF {
     private SettableStructObjectInspector structOI;
 
     private SettableStructObjectInspector mbb1;
-
-    private DoubleObjectInspector dist;
-
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
@@ -50,7 +48,7 @@ public class TrajBoxUDF extends GenericUDF {
                 boolean check2 = checking.mbb(mbb1);
 
                 if(!check || !check2){
-                    throw new UDFArgumentException("Invalid vatiables structure (var names)");
+                    throw new UDFArgumentException("Invalid variables structure (var names)");
                 }
             } else {
                 throw new UDFArgumentException("Invalid data types! Required Trajectory and Box");
@@ -110,7 +108,7 @@ public class TrajBoxUDF extends GenericUDF {
             result= BoxLineDist.minDist(poly,line);
         }
 
-        return result;
+        return new DoubleWritable(result);
     }
 
     @Override

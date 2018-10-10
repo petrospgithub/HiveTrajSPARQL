@@ -33,7 +33,7 @@ public class LCSS extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
         if (objectInspectors.length!=5)
-            throw new UDFArgumentLengthException("ST_Intersects3D only takes 2 arguments!");
+            throw new UDFArgumentLengthException("LCSS only takes 5 arguments!");
 
         try {
             trajectoryA_listOI = (StandardListObjectInspector) objectInspectors[0];
@@ -119,7 +119,7 @@ public class LCSS extends GenericUDF {
 
                 trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j-1), trajectoryB_structOI.getStructFieldRef("longitude")));
                 trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j-1), trajectoryB_structOI.getStructFieldRef("latitude")));
-                trajB_timestamp = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajB, i-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
+                trajB_timestamp = (long) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, i-1), trajectoryB_structOI.getStructFieldRef("timestamp")));
 
 
                 distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
@@ -145,7 +145,7 @@ public class LCSS extends GenericUDF {
 
             trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("longitude")));
             trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("latitude")));
-            trajB_timestamp = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajB, b-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
+            trajB_timestamp = (long) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("timestamp")));
 
             distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
             if(distance<=error && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
