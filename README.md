@@ -11,14 +11,17 @@ Define auxiliary jars directory or add jar @ $HIVE_HOME/lib/
 
 Function List:
 
-    -Start Point (trajectory)
-    -End Point (trajectory)
-    -Trajectory2Linestring(trajectory) - (for intergration with GIS tools for visualization)
-    -MBB, create trajectory mbb or give 6 input variables (min longitude, max longitude, min latitude, max latitude, min timestamp, max timestamp)
-    -DTW (trajectory, trajectory, parameters for spatiotemporal flexibility)
-    -LCSS (trajectory, trajectory, parameters for spatiotemporal flexibility)
-    -SP_IndexIntersects(trajectory or box, tree) (spatial range query based on JTS R-tree index)
-    -Duratiοn (trajectory)
-    -Length (trajectory)
-    -Spatiotemporal intersects (trajectory or box, box)
-    -TODO add knn, intersects based on 3d index!
+    -StartPoint(trajectory) //returns first point of trajectory
+    -EndPoint(trajectory) //returns last point of trajectory
+    -TrajLength(trajectory, 'Euclidean') //returns trajectory length based on distance function (Havershine, Euclidean, Manhattan)
+    -Trajectory2Linestring(trajectory) //returns trajectory as linestring (spatial only) (for intergration with GIS tools for visualization)
+    -TrajDuration(trajectory) //return trajectory duration in seconds
+    -ST_Intersects3D (trajectory || STmbb, trajectory || STmbb, tolerance variables) // input trajectory and mbb or mbb and mbb, returns true if objects spatiotemporal intersects
+                                                                        //tolerance variables used to extent mbb
+    -MbbConstructor(trajectory || Spatiotemporal elements*) // returns Spatiotemporal MBB
+    -TrajBoxDist(trajectory, STmbb) //returns spatial distance between trajectory and mbb based on MinDist function
+    -DTW(trajectory, trajectory, w(algorithm parameter), distance_function, parameters for spatiotemporal tolerance) // distance between trajectories based on DTW algorithm
+    -LCSS(trajectory, trajectory, parameters for spatiotemporal tolerance) // distance between trajectories based on LCSS algorithm
+    -ST_IndexIntersects(STmbb, tree, tolerance variables) // returns id for trajectories that intersects with query=STmbb
+    -IndexTrajKNN(trajectory, tree, mindist_threshold, temproal tolerance) // returns id for possible knn trajectories with query=trajectory
+   
