@@ -11,6 +11,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import utils.checking;
 
@@ -53,12 +54,12 @@ public class Trajectory2Linestring extends GenericUDF {
 
         try {
             Polyline linestring = new Polyline();
-            lon = (double) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("longitude")));
-            lat = (double) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("latitude")));
+            lon = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("longitude")))).get();
+            lat = ((DoubleWritable)  (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("latitude")))).get();
             linestring.startPath(lon, lat);
             for (int i = 1; i < listOI.getListLength(deferredObjects[0].get()); i++) {
-                lon = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")));
-                lat = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")));
+                lon = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")))).get();
+                lat = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")))).get();
 
                 linestring.lineTo(lon, lat);
             }

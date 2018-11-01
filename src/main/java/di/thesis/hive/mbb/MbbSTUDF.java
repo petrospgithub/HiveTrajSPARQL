@@ -77,14 +77,20 @@ public class MbbSTUDF extends GenericUDF{
         if (mode==1) {
             return Mbb_definiton(deferredObjects);
         } else if (mode==6) {
-            return Mbb_definiton(
-                    (double)min_longitude.getPrimitiveJavaObject(deferredObjects[0].get()),
-                    (double)max_longitude.getPrimitiveJavaObject(deferredObjects[1].get()),
-                    (double)min_latitude.getPrimitiveJavaObject(deferredObjects[2].get()),
-                    (double)max_latitude.getPrimitiveJavaObject(deferredObjects[3].get()),
-                    (long)min_timestamp.getPrimitiveJavaObject(deferredObjects[4].get()),
-                    (long)max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get())
-                    );
+
+
+            Object[] ret=new Object[6];
+            ret[0]= (DoubleWritable)min_longitude.getPrimitiveJavaObject(deferredObjects[0].get());
+            ret[1]=(DoubleWritable)max_longitude.getPrimitiveJavaObject(deferredObjects[1].get());
+
+            ret[2]=(DoubleWritable)min_latitude.getPrimitiveJavaObject(deferredObjects[2].get());
+            ret[3]=(DoubleWritable)max_latitude.getPrimitiveJavaObject(deferredObjects[3].get());
+
+            ret[4]=(LongWritable)min_timestamp.getPrimitiveJavaObject(deferredObjects[4].get());
+            ret[5]=(LongWritable)max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get());
+
+            return ret;
+
         } else {
             throw new RuntimeException("Invalid input");
         }
@@ -95,42 +101,26 @@ public class MbbSTUDF extends GenericUDF{
         return "foo";
     }
 
-    private Object Mbb_definiton(double min_lon, double max_lon, double min_lat, double max_lat,
-                                 long min_ts, long max_ts) {
-        Object[] ret=new Object[6];
-        ret[0]=new DoubleWritable(min_lon);
-        ret[1]=new DoubleWritable(max_lon);
-
-        ret[2]=new DoubleWritable(min_lat);
-        ret[3]=new DoubleWritable(max_lat);
-
-        ret[4]=new LongWritable(min_ts);
-        ret[5]=new LongWritable(max_ts);
-
-
-        return ret;
-    }
-
     private Object Mbb_definiton(DeferredObject[] deferredObjects) {
         try {
             int last = listOI.getListLength(deferredObjects[0].get()) - 1;
 
             Object traj=deferredObjects[0].get();
 
-            long min_ts = (long) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("timestamp")));
-            long max_ts = (long) (structOI.getStructFieldData(listOI.getListElement(traj, last), structOI.getStructFieldRef("timestamp")));
+            long min_ts = ((LongWritable) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("timestamp")))).get();
+            long max_ts = ((LongWritable) (structOI.getStructFieldData(listOI.getListElement(traj, last), structOI.getStructFieldRef("timestamp")))).get();
 
             double lon;
             double lat;
 
-            double min_lon = (double) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("longitude")));
-            double min_lat = (double) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("latitude")));
-            double max_lon = (double) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("longitude")));
-            double max_lat = (double) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("latitude")));
+            double min_lon = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("longitude"))) ).get();
+            double min_lat = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("latitude")))).get();
+            double max_lon = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("longitude")))).get();
+            double max_lat = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, 0), structOI.getStructFieldRef("latitude")))).get();
 
             for (int i = 1; i < last; i++) {
-                lon = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")));
-                lat = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")));
+                lon = ((DoubleWritable)  (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")))).get();
+                lat = ((DoubleWritable)  (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")))).get();
 
                 if (min_lon > lon) {
                     min_lon = lon;

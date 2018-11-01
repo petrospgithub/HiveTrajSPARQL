@@ -46,14 +46,15 @@ public class EndPoint extends GenericUDF {
         try {
             int last = listOI.getListLength(deferredObjects[0].get())-1;
 
-            long timestamp = (long) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("timestamp")));
-            double longitude = (double) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("longitude")));
-            double latitude = (double) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("latitude")));
+            LongWritable timestamp = (LongWritable) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("timestamp")));
+            DoubleWritable longitude = (DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("longitude")));
+            DoubleWritable latitude = (DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("latitude")));
 
             Object[] ret = new Object[3];
-            ret[0]=new LongWritable(timestamp);
-            ret[1]=new DoubleWritable(longitude);
-            ret[2]=new DoubleWritable(latitude);
+            ret[0]=timestamp;
+            ret[1]=longitude;
+            ret[2]=latitude;
+
             return ret;
         } catch (RuntimeException e) {
             throw new HiveException(e);
