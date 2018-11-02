@@ -18,6 +18,8 @@ import org.nustaq.serialization.FSTObjectInput;
 import utils.checking;
 
 import java.io.ByteArrayInputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,9 +116,14 @@ public class ST_IndexIntersects  extends GenericUDF {
 
             long mbb1_mints=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")))).get();
             long mbb1_maxts=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")))).get();
-
+/*
             FSTObjectInput input = new FSTObjectInput(new ByteArrayInputStream(tree.getBytes()));
             STRtree3D retrievedObject = (STRtree3D)input.readObject(STRtree3D.class);
+*/
+            STRtree3D retrievedObject;
+            ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
+            ObjectInput in = new ObjectInputStream(bis);
+            retrievedObject = (STRtree3D) in.readObject();
 
             EnvelopeST env=new EnvelopeST(mbb1_minlon-min_ext_lon, mbb1_maxlon+max_ext_lon,
                     mbb1_minlat-min_ext_lat, mbb1_maxlat+max_ext_lat,
