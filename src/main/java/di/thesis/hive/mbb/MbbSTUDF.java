@@ -18,11 +18,11 @@ public class MbbSTUDF extends GenericUDF{
     private ListObjectInspector listOI;
     private SettableStructObjectInspector structOI;
 
-    private DoubleObjectInspector min_longitude=null;
-    private DoubleObjectInspector max_longitude=null;
+    private HiveDecimalObjectInspector min_longitude=null;
+    private HiveDecimalObjectInspector max_longitude=null;
 
-    private DoubleObjectInspector min_latitude=null;
-    private DoubleObjectInspector max_latitude=null;
+    private HiveDecimalObjectInspector min_latitude=null;
+    private HiveDecimalObjectInspector max_latitude=null;
 
     private LongObjectInspector min_timestamp=null;
     private LongObjectInspector max_timestamp=null;
@@ -52,11 +52,11 @@ public class MbbSTUDF extends GenericUDF{
         } else if (objectInspectors.length == 6) {
             try {
 
-                min_longitude = (WritableConstantDoubleObjectInspector) objectInspectors[0];
-                max_longitude = (WritableConstantDoubleObjectInspector) objectInspectors[1];
+                min_longitude = (WritableConstantHiveDecimalObjectInspector) objectInspectors[0];
+                max_longitude = (WritableConstantHiveDecimalObjectInspector) objectInspectors[1];
 
-                min_latitude = (WritableConstantDoubleObjectInspector) objectInspectors[2];
-                max_latitude = (WritableConstantDoubleObjectInspector) objectInspectors[3];
+                min_latitude = (WritableConstantHiveDecimalObjectInspector) objectInspectors[2];
+                max_latitude = (WritableConstantHiveDecimalObjectInspector) objectInspectors[3];
 
                 min_timestamp = (WritableConstantLongObjectInspector) objectInspectors[4];
                 max_timestamp = (WritableConstantLongObjectInspector) objectInspectors[5];
@@ -80,11 +80,13 @@ public class MbbSTUDF extends GenericUDF{
 
 
             Object[] ret=new Object[6];
-            ret[0]= (DoubleWritable)min_longitude.getPrimitiveJavaObject(deferredObjects[0].get());
-            ret[1]=(DoubleWritable)max_longitude.getPrimitiveJavaObject(deferredObjects[1].get());
 
-            ret[2]=(DoubleWritable)min_latitude.getPrimitiveJavaObject(deferredObjects[2].get());
-            ret[3]=(DoubleWritable)max_latitude.getPrimitiveJavaObject(deferredObjects[3].get());
+
+            ret[0]= new DoubleWritable(min_longitude.getPrimitiveJavaObject(deferredObjects[0].get()).doubleValue());
+            ret[1]= new DoubleWritable(max_longitude.getPrimitiveJavaObject(deferredObjects[1].get()).doubleValue());
+
+            ret[2]= new DoubleWritable(min_latitude.getPrimitiveJavaObject(deferredObjects[2].get()).doubleValue());
+            ret[3]= new DoubleWritable(max_latitude.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue());
 
             ret[4]=(LongWritable)min_timestamp.getPrimitiveJavaObject(deferredObjects[4].get());
             ret[5]=(LongWritable)max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get());
