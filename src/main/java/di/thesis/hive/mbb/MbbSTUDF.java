@@ -88,8 +88,8 @@ public class MbbSTUDF extends GenericUDF{
             ret[2]= new DoubleWritable(min_latitude.getPrimitiveJavaObject(deferredObjects[2].get()).doubleValue());
             ret[3]= new DoubleWritable(max_latitude.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue());
 
-            ret[4]=(LongWritable)min_timestamp.getPrimitiveJavaObject(deferredObjects[4].get());
-            ret[5]=(LongWritable)max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get());
+            ret[4]=new LongWritable((long)min_timestamp.getPrimitiveJavaObject(deferredObjects[4].get()));
+            ret[5]=new LongWritable((long)max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get()));
 
             return ret;
 
