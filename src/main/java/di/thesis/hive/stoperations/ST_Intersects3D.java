@@ -7,9 +7,12 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.HiveDecimalObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BooleanWritable;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import utils.checking;
 
 public class ST_Intersects3D extends GenericUDF{
@@ -20,11 +23,11 @@ public class ST_Intersects3D extends GenericUDF{
     private SettableStructObjectInspector mbb1;
     private SettableStructObjectInspector mbb2;
 
-    private DoubleObjectInspector minx_tolerance;
-    private DoubleObjectInspector maxx_tolerance;
+    private HiveDecimalObjectInspector minx_tolerance;
+    private HiveDecimalObjectInspector maxx_tolerance;
 
-    private DoubleObjectInspector miny_tolerance;
-    private DoubleObjectInspector maxy_tolerance;
+    private HiveDecimalObjectInspector miny_tolerance;
+    private HiveDecimalObjectInspector maxy_tolerance;
 
     private IntObjectInspector mint_tolerance;
     private IntObjectInspector maxt_tolerance;
@@ -53,11 +56,11 @@ public class ST_Intersects3D extends GenericUDF{
 
         try {
 
-            minx_tolerance=(DoubleObjectInspector) minxOI;
-            maxx_tolerance=(DoubleObjectInspector) maxxOI;
+            minx_tolerance=(HiveDecimalObjectInspector) minxOI;
+            maxx_tolerance=(HiveDecimalObjectInspector) maxxOI;
 
-            miny_tolerance=(DoubleObjectInspector) minyOI;
-            maxy_tolerance=(DoubleObjectInspector) maxyOI;
+            miny_tolerance=(HiveDecimalObjectInspector) minyOI;
+            maxy_tolerance=(HiveDecimalObjectInspector) maxyOI;
 
             mint_tolerance=(IntObjectInspector) mintOI;
             maxt_tolerance=(IntObjectInspector) maxtOI;
@@ -119,11 +122,11 @@ public class ST_Intersects3D extends GenericUDF{
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
 
 
-        double min_ext_lon=minx_tolerance.get(deferredObjects[2].get());
-        double max_ext_lon=maxx_tolerance.get(deferredObjects[3].get());
+        double min_ext_lon=minx_tolerance.getPrimitiveJavaObject(deferredObjects[2].get()).doubleValue();
+        double max_ext_lon=maxx_tolerance.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue();
 
-        double min_ext_lat=miny_tolerance.get(deferredObjects[4].get());
-        double max_ext_lat=maxy_tolerance.get(deferredObjects[5].get());
+        double min_ext_lat=miny_tolerance.getPrimitiveJavaObject(deferredObjects[4].get()).doubleValue();
+        double max_ext_lat=maxy_tolerance.getPrimitiveJavaObject(deferredObjects[5].get()).doubleValue();
 
         long min_ext_ts=mint_tolerance.get(deferredObjects[6].get());
         long max_ext_ts=maxt_tolerance.get(deferredObjects[7].get());
@@ -141,24 +144,24 @@ public class ST_Intersects3D extends GenericUDF{
         }
         else if (mode==3) {
 
-            double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("minx"))) - min_ext_lon;
-            double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxx"))) + max_ext_lon;
+            double mbb1_minlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("minx")))).get() - min_ext_lon;
+            double mbb1_maxlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxx")))).get() + max_ext_lon;
 
-            double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("miny"))) - min_ext_lat;
-            double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxy"))) + max_ext_lat;
+            double mbb1_minlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("miny")))).get() - min_ext_lat;
+            double mbb1_maxlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxy")))).get() + max_ext_lat;
 
-            long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("mint"))) - min_ext_ts;
-            long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxt"))) - max_ext_ts;
+            long mbb1_mints=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("mint")))).get() - min_ext_ts;
+            long mbb1_maxts=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxt")))).get() - max_ext_ts;
 
 /***********************************************************************************************************************************/
-            double mbb2_minlon=  (double)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("minx")));
-            double mbb2_maxlon=  (double)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxx")));
+            double mbb2_minlon=  ((DoubleWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("minx")))).get();
+            double mbb2_maxlon=  ((DoubleWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxx")))).get();
 
-            double mbb2_minlat=  (double)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("miny")));
-            double mbb2_maxlat=  (double)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxy")));
+            double mbb2_minlat=  ((DoubleWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("miny")))).get();
+            double mbb2_maxlat=  ((DoubleWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxy")))).get();
 
-            long mbb2_mints=  (long)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("mint")));
-            long mbb2_maxts=  (long)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxt")));
+            long mbb2_mints=  ((LongWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("mint")))).get();
+            long mbb2_maxts=  ((LongWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxt")))).get();
 
             boolean ret= Intersects.apply(mbb1_minlon,mbb1_maxlon,mbb1_minlat,mbb1_maxlat,mbb1_mints,mbb1_maxts,
                     mbb2_minlon,mbb2_maxlon,mbb2_minlat,mbb2_maxlat,mbb2_mints,mbb2_maxts);
@@ -178,14 +181,14 @@ public class ST_Intersects3D extends GenericUDF{
         try {
 
             /*mbb1*/
-            double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("minx"))) - min_ext_lon;
-            double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxx"))) + max_ext_lon;
+            double mbb1_minlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("minx")))).get() - min_ext_lon;
+            double mbb1_maxlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxx")))).get() + max_ext_lon;
 
-            double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("miny"))) - min_ext_lat;
-            double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxy"))) + max_ext_lat;
+            double mbb1_minlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("miny")))).get() - min_ext_lat;
+            double mbb1_maxlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxy")))).get() + max_ext_lat;
 
-            long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("mint"))) - min_ext_ts;
-            long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt"))) - max_ext_ts;
+            long mbb1_mints=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("mint")))).get() - min_ext_ts;
+            long mbb1_maxts=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt")))).get() - max_ext_ts;
             /*mbb1*/
 
             int trajectory_length=listOI.getListLength(deferredObjects_trajectory.get());
@@ -198,9 +201,9 @@ public class ST_Intersects3D extends GenericUDF{
 
             for (int i=0; i<trajectory_length-1; i++) {
 
-                trajectory_longitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")));
-                trajectory_latitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")));
-                trajectory_timestamp = (long) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("timestamp")));
+                trajectory_longitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")))).get();
+                trajectory_latitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")))).get();
+                trajectory_timestamp = ((LongWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("timestamp")))).get();
 
                 if (
                         Intersects.apply(mbb1_minlon,mbb1_maxlon,mbb1_minlat,mbb1_maxlat,mbb1_mints,mbb1_maxts,

@@ -81,11 +81,11 @@ public class Length extends GenericUDF{
         }
 
         for (int i=0; i<trajectory_length-1; i++) {
-            curr_longitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")));
-            curr_latitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")));
+            curr_longitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")))).get();
+            curr_latitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")))).get();
 
-            next_longitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i+1), structOI.getStructFieldRef("longitude")));
-            next_latitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i+1), structOI.getStructFieldRef("latitude")));
+            next_longitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i+1), structOI.getStructFieldRef("longitude")))).get();
+            next_latitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i+1), structOI.getStructFieldRef("latitude")))).get();
 
             distance+= func.calculate(curr_latitude, curr_longitude, next_latitude, next_longitude);
 /*

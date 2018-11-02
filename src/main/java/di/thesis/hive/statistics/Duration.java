@@ -46,8 +46,8 @@ public class Duration extends GenericUDF {
 
         int last = listOI.getListLength(deferredObjects[0].get())-1;
 
-        long end_timestamp = (long) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("timestamp")));
-        long start_timestamp = (long) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), 0), structOI.getStructFieldRef("timestamp")));
+        long end_timestamp = ((LongWritable) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), last), structOI.getStructFieldRef("timestamp")))).get();
+        long start_timestamp = ((LongWritable) (structOI.getStructFieldData(listOI.getListElement(deferredObjects[0].get(), 0), structOI.getStructFieldRef("timestamp")))).get();
 
         return new LongWritable(end_timestamp-start_timestamp);
     }

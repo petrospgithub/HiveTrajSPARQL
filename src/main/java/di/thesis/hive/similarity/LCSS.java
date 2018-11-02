@@ -10,11 +10,9 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import utils.checking;
 
 import java.util.Objects;
@@ -27,7 +25,7 @@ public class LCSS extends GenericUDF {
     private SettableStructObjectInspector trajectoryB_structOI;
 
     private StringObjectInspector func_name;
-    private DoubleObjectInspector eps;
+    private HiveDecimalObjectInspector eps;
     private IntObjectInspector d;
 
     @Override
@@ -44,7 +42,7 @@ public class LCSS extends GenericUDF {
 
             func_name=(StringObjectInspector)objectInspectors[2];
 
-            eps=(DoubleObjectInspector)objectInspectors[3];
+            eps=(HiveDecimalObjectInspector)objectInspectors[3];
 
             d=(IntObjectInspector)objectInspectors[4];
 
@@ -73,7 +71,7 @@ public class LCSS extends GenericUDF {
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[2].get());
 
-        double error=eps.get(deferredObjects[3].get());
+        double error=eps.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue();
 
         int delta=d.get(deferredObjects[4].get());
 
@@ -111,15 +109,15 @@ public class LCSS extends GenericUDF {
 
         for (int i = 1; i <= trajectoryA_length; i++) {
 
-            trajA_longitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i-1), trajectoryA_structOI.getStructFieldRef("longitude")));
-            trajA_latitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i-1), trajectoryA_structOI.getStructFieldRef("latitude")));
-            trajA_timestamp = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
+            trajA_longitude = ((DoubleWritable) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i-1), trajectoryA_structOI.getStructFieldRef("longitude")))).get();
+            trajA_latitude = ((DoubleWritable) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i-1), trajectoryA_structOI.getStructFieldRef("latitude")))).get();
+            trajA_timestamp = ((LongWritable) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, i-1), trajectoryA_structOI.getStructFieldRef("timestamp")))).get();
 
             for (int j = 1; j <= trajectoryB_length; j++) {
 
-                trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j-1), trajectoryB_structOI.getStructFieldRef("longitude")));
-                trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j-1), trajectoryB_structOI.getStructFieldRef("latitude")));
-                trajB_timestamp = (long) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, i-1), trajectoryB_structOI.getStructFieldRef("timestamp")));
+                trajB_longitude = ((DoubleWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j-1), trajectoryB_structOI.getStructFieldRef("longitude")))).get();
+                trajB_latitude = ((DoubleWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, j-1), trajectoryB_structOI.getStructFieldRef("latitude")))).get();
+                trajB_timestamp = ((LongWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, i-1), trajectoryB_structOI.getStructFieldRef("timestamp")))).get();
 
 
                 distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
@@ -139,13 +137,13 @@ public class LCSS extends GenericUDF {
         //ArrayList<PointST> common=new ArrayList<PointST>();
         while (a!=0 && b!=0) {
 
-            trajA_longitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, a-1), trajectoryA_structOI.getStructFieldRef("longitude")));
-            trajA_latitude = (double) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, a-1), trajectoryA_structOI.getStructFieldRef("latitude")));
-            trajA_timestamp = (long) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, a-1), trajectoryA_structOI.getStructFieldRef("timestamp")));
+            trajA_longitude = ((DoubleWritable) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, a-1), trajectoryA_structOI.getStructFieldRef("longitude")))).get();
+            trajA_latitude = ((DoubleWritable) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, a-1), trajectoryA_structOI.getStructFieldRef("latitude")))).get();
+            trajA_timestamp = ((LongWritable) (trajectoryA_structOI.getStructFieldData(trajectoryA_listOI.getListElement(trajA, a-1), trajectoryA_structOI.getStructFieldRef("timestamp")))).get();
 
-            trajB_longitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("longitude")));
-            trajB_latitude = (double) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("latitude")));
-            trajB_timestamp = (long) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("timestamp")));
+            trajB_longitude = ((DoubleWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("longitude")))).get();
+            trajB_latitude = ((DoubleWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("latitude")))).get();
+            trajB_timestamp = ((LongWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("timestamp")))).get();
 
             distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
             if(distance<=error && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {

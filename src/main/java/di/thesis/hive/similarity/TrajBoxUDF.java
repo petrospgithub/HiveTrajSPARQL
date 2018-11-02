@@ -14,8 +14,8 @@ import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.io.LongWritable;
 import utils.checking;
 
 public class TrajBoxUDF extends GenericUDF {
@@ -65,14 +65,14 @@ public class TrajBoxUDF extends GenericUDF {
     @Override
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
 
-        double mbb1_minlon=  (double)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("minx"))) ;
-        double mbb1_maxlon=  (double)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("maxx")));
+        double mbb1_minlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("minx")))).get();
+        double mbb1_maxlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("maxx")))).get();
 
-        double mbb1_minlat=  (double)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("miny"))) ;
-        double mbb1_maxlat=  (double)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("maxy"))) ;
+        double mbb1_minlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("miny")))).get();
+        double mbb1_maxlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("maxy")))).get();
 
-        long mbb1_mints=  (long)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("mint"))) ;
-        long mbb1_maxts=  (long)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("maxt"))) ;
+        long mbb1_mints=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("mint")))).get();
+        long mbb1_maxts=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects[1].get(), mbb1.getStructFieldRef("maxt")))).get();
 
 
         Object traj=deferredObjects[0].get();
@@ -89,9 +89,9 @@ public class TrajBoxUDF extends GenericUDF {
 
         for (int i=0; i<trajectory_length-1; i++) {
 
-            trajectory_longitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")));
-            trajectory_latitude = (double) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")));
-            trajectory_timestamp = (long) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("timestamp")));
+            trajectory_longitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("longitude")))).get();
+            trajectory_latitude = ((DoubleWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("latitude")))).get();
+            trajectory_timestamp = ((LongWritable) (structOI.getStructFieldData(listOI.getListElement(traj, i), structOI.getStructFieldRef("timestamp")))).get();
 
             if (
                     Intersects.apply(mbb1_minlon,mbb1_maxlon,mbb1_minlat,mbb1_maxlat,mbb1_mints,mbb1_maxts,

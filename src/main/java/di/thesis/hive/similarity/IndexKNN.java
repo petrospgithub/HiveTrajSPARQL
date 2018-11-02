@@ -8,10 +8,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.nustaq.serialization.FSTConfiguration;
@@ -26,7 +23,7 @@ public class IndexKNN extends GenericUDF {
     private ListObjectInspector listOI;
     private SettableStructObjectInspector structOI;
 
-    private DoubleObjectInspector dist_threshold;
+    private HiveDecimalObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
 
@@ -41,7 +38,7 @@ public class IndexKNN extends GenericUDF {
             treeIO=(BinaryObjectInspector) objectInspectors[1];
 
            // k=(IntObjectInspector) objectInspectors[2];
-            dist_threshold=(DoubleObjectInspector) objectInspectors[2];
+            dist_threshold=(HiveDecimalObjectInspector) objectInspectors[2];
             minT_tolerance=(IntObjectInspector) objectInspectors[3];
             maxT_tolerance=(IntObjectInspector) objectInspectors[4];
 
@@ -75,7 +72,7 @@ public class IndexKNN extends GenericUDF {
             STRtree3D retrievedObject = (STRtree3D)conf.asObject(tree.getBytes());
             Object traj=deferredObjects[0].get();
 
-            double threshold= dist_threshold.get(deferredObjects[2].get());
+            double threshold= dist_threshold.getPrimitiveJavaObject(deferredObjects[2].get()).doubleValue();
             int minTtolerance= minT_tolerance.get(deferredObjects[3].get());
             int maxTtolerance= maxT_tolerance.get(deferredObjects[4].get());
 

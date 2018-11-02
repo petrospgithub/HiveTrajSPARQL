@@ -9,11 +9,9 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.nustaq.serialization.FSTConfiguration;
 import utils.checking;
@@ -26,11 +24,11 @@ public class ST_IndexIntersects  extends GenericUDF {
     private SettableStructObjectInspector queryIO=null;
     private BinaryObjectInspector treeIO=null;
 
-    private DoubleObjectInspector minx_tolerance;
-    private DoubleObjectInspector maxx_tolerance;
+    private HiveDecimalObjectInspector minx_tolerance;
+    private HiveDecimalObjectInspector maxx_tolerance;
 
-    private DoubleObjectInspector miny_tolerance;
-    private DoubleObjectInspector maxy_tolerance;
+    private HiveDecimalObjectInspector miny_tolerance;
+    private HiveDecimalObjectInspector maxy_tolerance;
 
     private IntObjectInspector mint_tolerance;
     private IntObjectInspector maxt_tolerance;
@@ -54,11 +52,11 @@ public class ST_IndexIntersects  extends GenericUDF {
             ObjectInspector maxtOI = objectInspectors[7];
 
 
-            minx_tolerance=(DoubleObjectInspector) minxOI;
-            maxx_tolerance=(DoubleObjectInspector) maxxOI;
+            minx_tolerance=(HiveDecimalObjectInspector) minxOI;
+            maxx_tolerance=(HiveDecimalObjectInspector) maxxOI;
 
-            miny_tolerance=(DoubleObjectInspector) minyOI;
-            maxy_tolerance=(DoubleObjectInspector) maxyOI;
+            miny_tolerance=(HiveDecimalObjectInspector) minyOI;
+            maxy_tolerance=(HiveDecimalObjectInspector) maxyOI;
 
             mint_tolerance=(IntObjectInspector) mintOI;
             maxt_tolerance=(IntObjectInspector) maxtOI;
@@ -92,11 +90,11 @@ public class ST_IndexIntersects  extends GenericUDF {
 
         try {
 
-            double min_ext_lon=minx_tolerance.get(deferredObjects[2].get());
-            double max_ext_lon=maxx_tolerance.get(deferredObjects[3].get());
+            double min_ext_lon=minx_tolerance.getPrimitiveJavaObject(deferredObjects[2].get()).doubleValue();
+            double max_ext_lon=maxx_tolerance.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue();
 
-            double min_ext_lat=miny_tolerance.get(deferredObjects[4].get());
-            double max_ext_lat=maxy_tolerance.get(deferredObjects[5].get());
+            double min_ext_lat=miny_tolerance.getPrimitiveJavaObject(deferredObjects[4].get()).doubleValue();
+            double max_ext_lat=maxy_tolerance.getPrimitiveJavaObject(deferredObjects[5].get()).doubleValue();
 
             long min_ext_ts=mint_tolerance.get(deferredObjects[6].get());
             long max_ext_ts=maxt_tolerance.get(deferredObjects[7].get());
@@ -106,14 +104,14 @@ public class ST_IndexIntersects  extends GenericUDF {
                 throw new RuntimeException("Extend parameters must be posititve!");
             }
 
-            double mbb1_minlon=  (double)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("minx")));
-            double mbb1_maxlon=  (double)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxx")));
+            double mbb1_minlon=  ((DoubleWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("minx")))).get();
+            double mbb1_maxlon=  ((DoubleWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxx")))).get();
 
-            double mbb1_minlat=  (double)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("miny")));
-            double mbb1_maxlat=  (double)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxy")));
+            double mbb1_minlat=  ((DoubleWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("miny")))).get();
+            double mbb1_maxlat=  ((DoubleWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxy")))).get();
 
-            long mbb1_mints=  (long)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")));
-            long mbb1_maxts=  (long)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")));
+            long mbb1_mints=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")))).get();
+            long mbb1_maxts=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")))).get();
 
 
             FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
