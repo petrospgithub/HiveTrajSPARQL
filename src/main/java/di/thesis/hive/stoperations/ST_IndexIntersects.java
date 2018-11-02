@@ -13,6 +13,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import utils.checking;
@@ -71,9 +72,12 @@ public class ST_IndexIntersects  extends GenericUDF {
                 throw new UDFArgumentException("Invalid box structure (var names)");
             }
 
-            return ObjectInspectorFactory
-                    .getStandardListObjectInspector(PrimitiveObjectInspectorFactory
-                            .writableLongObjectInspector);
+           // return ObjectInspectorFactory
+                //    .getStandardListObjectInspector(PrimitiveObjectInspectorFactory
+                      //      .writableLongObjectInspector);
+
+             return ObjectInspectorFactory
+                .getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
         } catch (Exception e) {
             throw new UDFArgumentException(e);
         }
@@ -87,7 +91,7 @@ public class ST_IndexIntersects  extends GenericUDF {
         BytesWritable tree=treeIO.getPrimitiveWritableObject(deferredObjects[1].get());
 
 
-        ArrayList<LongWritable> result = new ArrayList<>();
+        ArrayList<Text> result = new ArrayList<>();
 
        // ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
        // ObjectInput in=null;
@@ -120,11 +124,16 @@ public class ST_IndexIntersects  extends GenericUDF {
             FSTObjectInput input = new FSTObjectInput(new ByteArrayInputStream(tree.getBytes()));
             STRtree3D retrievedObject = (STRtree3D)input.readObject(STRtree3D.class);
 */
-            STRtree3D retrievedObject;
-            ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
-            ObjectInput in = new ObjectInputStream(bis);
-            retrievedObject = (STRtree3D) in.readObject();
 
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tree.getBytes());
+            FSTObjectInput objectInput = FSTConfiguration.getDefaultConfiguration().getObjectInput(byteArrayInputStream);
+            Object readObject = objectInput.readObject();
+            byteArrayInputStream.close();
+
+            result.add(new Text(readObject.getClass().getName()));
+
+/*
             EnvelopeST env=new EnvelopeST(mbb1_minlon-min_ext_lon, mbb1_maxlon+max_ext_lon,
                     mbb1_minlat-min_ext_lat, mbb1_maxlat+max_ext_lat,
                     mbb1_mints-min_ext_ts, mbb1_maxts+max_ext_ts);
@@ -137,7 +146,7 @@ public class ST_IndexIntersects  extends GenericUDF {
 
                 result.add(new LongWritable(entry));
             }
-
+*/
             return result;
 
         } catch (Exception e) {
