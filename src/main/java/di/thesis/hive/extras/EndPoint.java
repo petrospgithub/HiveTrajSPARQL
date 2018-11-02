@@ -21,7 +21,7 @@ public class EndPoint extends GenericUDF {
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
         if (objectInspectors.length!=1)
-            throw new UDFArgumentLengthException("StartPoint only takes 1 argument: Trajectory");
+            throw new UDFArgumentLengthException("        if (objectInspectors.length!=1EndPoint\n only takes 1 argument: Trajectory");
 
         try {
 

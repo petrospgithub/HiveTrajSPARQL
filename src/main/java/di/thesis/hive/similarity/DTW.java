@@ -10,10 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import utils.checking;
@@ -31,7 +28,7 @@ public class DTW extends GenericUDF {
     private IntObjectInspector fast;
     private StringObjectInspector func_name;
 
-    private DoubleObjectInspector accept_dist;
+    private HiveDecimalObjectInspector accept_dist;
 
     private IntObjectInspector min_ts_tolerance;
     private IntObjectInspector max_ts_tolerance;
@@ -52,7 +49,7 @@ public class DTW extends GenericUDF {
             fast = (IntObjectInspector)objectInspectors[2];
             func_name=(StringObjectInspector)objectInspectors[3];
 
-            accept_dist=(DoubleObjectInspector) objectInspectors[4];
+            accept_dist=(WritableConstantHiveDecimalObjectInspector) objectInspectors[4];
 
             min_ts_tolerance=(IntObjectInspector) objectInspectors[5];
 
@@ -86,7 +83,7 @@ public class DTW extends GenericUDF {
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[3].get());
 
-        double d=accept_dist.get(deferredObjects[4].get());
+        double d=accept_dist.getPrimitiveJavaObject(deferredObjects[4].get()).doubleValue();
 
         int minTSext=min_ts_tolerance.get(deferredObjects[5].get());
         int maxTSext=max_ts_tolerance.get(deferredObjects[6].get());

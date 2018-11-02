@@ -24,7 +24,7 @@ public class Trajectory2GeoJSON extends GenericUDF {
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
 
         if (arguments.length!=1)
-            throw new UDFArgumentLengthException("StartPoint only takes 1 argument: Trajectory");
+            throw new UDFArgumentLengthException("Trajectory2GeoJSON only takes 1 argument: Trajectory");
 
         try {
 
