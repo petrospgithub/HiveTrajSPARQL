@@ -1,5 +1,7 @@
 package di.thesis.hive.stoperations;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import di.thesis.indexing.types.EnvelopeST;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
@@ -19,6 +21,7 @@ import org.nustaq.serialization.FSTObjectInput;
 import utils.checking;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -125,13 +128,14 @@ public class ST_IndexIntersects  extends GenericUDF {
             STRtree3D retrievedObject = (STRtree3D)input.readObject(STRtree3D.class);
 */
 
+            Kryo kryo = new Kryo();
 
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tree.getBytes());
-            FSTObjectInput objectInput = FSTConfiguration.getDefaultConfiguration().getObjectInput(byteArrayInputStream);
-            Object readObject = objectInput.readObject();
-            byteArrayInputStream.close();
+            Input input = new Input(new ByteArrayInputStream(tree.getBytes()));
 
-            result.add(new Text(readObject.getClass().getName()));
+            STRtree3D retrievedObject = kryo.readObject(input, STRtree3D.class);
+            input.close();
+
+            result.add(new Text(retrievedObject.getClass().getName()));
 
 /*
             EnvelopeST env=new EnvelopeST(mbb1_minlon-min_ext_lon, mbb1_maxlon+max_ext_lon,
