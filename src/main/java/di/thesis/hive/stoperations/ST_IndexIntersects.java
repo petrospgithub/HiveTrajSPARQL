@@ -75,12 +75,9 @@ public class ST_IndexIntersects  extends GenericUDF {
                 throw new UDFArgumentException("Invalid box structure (var names)");
             }
 
-           // return ObjectInspectorFactory
-                //    .getStandardListObjectInspector(PrimitiveObjectInspectorFactory
-                      //      .writableLongObjectInspector);
-
-             return ObjectInspectorFactory
-                .getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
+           return ObjectInspectorFactory
+                    .getStandardListObjectInspector(PrimitiveObjectInspectorFactory
+                            .writableLongObjectInspector);
         } catch (Exception e) {
             throw new UDFArgumentException(e);
         }
@@ -94,10 +91,7 @@ public class ST_IndexIntersects  extends GenericUDF {
         BytesWritable tree=treeIO.getPrimitiveWritableObject(deferredObjects[1].get());
 
 
-        ArrayList<Text> result = new ArrayList<>();
-
-       // ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
-       // ObjectInput in=null;
+        ArrayList<LongWritable> result = new ArrayList<>();
 
         try {
 
@@ -123,10 +117,6 @@ public class ST_IndexIntersects  extends GenericUDF {
 
             long mbb1_mints=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")))).get();
             long mbb1_maxts=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")))).get();
-/*
-            FSTObjectInput input = new FSTObjectInput(new ByteArrayInputStream(tree.getBytes()));
-            STRtree3D retrievedObject = (STRtree3D)input.readObject(STRtree3D.class);
-*/
 
             Kryo kryo = new Kryo();
 
@@ -135,9 +125,6 @@ public class ST_IndexIntersects  extends GenericUDF {
             STRtree3D retrievedObject = kryo.readObject(input, STRtree3D.class);
             input.close();
 
-            result.add(new Text(retrievedObject.getClass().getName()));
-
-/*
             EnvelopeST env=new EnvelopeST(mbb1_minlon-min_ext_lon, mbb1_maxlon+max_ext_lon,
                     mbb1_minlat-min_ext_lat, mbb1_maxlat+max_ext_lat,
                     mbb1_mints-min_ext_ts, mbb1_maxts+max_ext_ts);
@@ -150,7 +137,7 @@ public class ST_IndexIntersects  extends GenericUDF {
 
                 result.add(new LongWritable(entry));
             }
-*/
+
             return result;
 
         } catch (Exception e) {
