@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import di.thesis.indexing.types.EnvelopeST;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -117,13 +118,15 @@ public class ST_IndexIntersects  extends GenericUDF {
 
             long mbb1_mints=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")))).get();
             long mbb1_maxts=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")))).get();
-
+/*
             Kryo kryo = new Kryo();
 
             Input input = new Input(new ByteArrayInputStream(tree.getBytes()));
 
             STRtree3D retrievedObject = kryo.readObject(input, STRtree3D.class);
             input.close();
+*/
+            STRtree3D retrievedObject = SerializationUtils.deserialize(tree.getBytes());
 
             EnvelopeST env=new EnvelopeST(mbb1_minlon-min_ext_lon, mbb1_maxlon+max_ext_lon,
                     mbb1_minlat-min_ext_lat, mbb1_maxlat+max_ext_lat,
