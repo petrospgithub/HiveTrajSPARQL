@@ -143,7 +143,7 @@ public class ST_Intersects3D extends GenericUDF{
             return new BooleanWritable(mbb_overlap_trajectory(deferredObjects[0], deferredObjects[1], min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat, min_ext_ts, max_ext_ts));
         }
         else if (mode==3) {
-
+/*
             double mbb1_minlon=  ((double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("minx")))) - min_ext_lon;
             double mbb1_maxlon=  ((double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxx")))) + max_ext_lon;
 
@@ -162,8 +162,8 @@ public class ST_Intersects3D extends GenericUDF{
 
             long mbb2_mints=  ((long)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("mint"))));
             long mbb2_maxts=  ((long)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxt"))));
+*/
 
-            /*
 
             double mbb1_minlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("minx")))).get() - min_ext_lon;
             double mbb1_maxlon=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxx")))).get() + max_ext_lon;
@@ -183,7 +183,7 @@ public class ST_Intersects3D extends GenericUDF{
 
             long mbb2_mints=  ((LongWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("mint")))).get();
             long mbb2_maxts=  ((LongWritable)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("maxt")))).get();
-*/
+
             boolean ret= Intersects.apply(mbb1_minlon,mbb1_maxlon,mbb1_minlat,mbb1_maxlat,mbb1_mints,mbb1_maxts,
                     mbb2_minlon,mbb2_maxlon,mbb2_minlat,mbb2_maxlat,mbb2_mints,mbb2_maxts);
 
