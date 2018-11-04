@@ -1,5 +1,5 @@
 package di.thesis.hive.stoperations;
-
+/*
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
@@ -119,7 +119,7 @@ public class ST_IndexIntersects  extends GenericUDF {
             long mbb1_mints=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("mint")))).get();
             long mbb1_maxts=  ((LongWritable)(queryIO.getStructFieldData(deferredObjects[0].get(), queryIO.getStructFieldRef("maxt")))).get();
 
-            ByteArrayInputStream bis = new ByteArrayInputStream(tree.get());
+            ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
             ObjectInput in = null;
 
             in = new ObjectInputStream(bis);
@@ -153,3 +153,4 @@ public class ST_IndexIntersects  extends GenericUDF {
         return null;
     }
 }
+*/
