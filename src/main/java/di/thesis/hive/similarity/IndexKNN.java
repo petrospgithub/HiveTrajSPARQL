@@ -1,7 +1,6 @@
 package di.thesis.hive.similarity;
 
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
@@ -11,6 +10,9 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import utils.checking;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +80,10 @@ public class IndexKNN extends GenericUDTF {
 
             long pid=partidOI.get(objects[5]);
 
-            STRtree3D retrievedObject = SerializationUtils.deserialize(tree.getBytes());
+            ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
+            ObjectInput in = new ObjectInputStream(bis);
+            STRtree3D retrievedObject = (STRtree3D)in.readObject();
+
             Object traj=objects[0];
 
             double threshold= dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();

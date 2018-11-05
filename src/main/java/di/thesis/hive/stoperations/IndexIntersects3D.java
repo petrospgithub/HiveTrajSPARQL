@@ -3,7 +3,6 @@ package di.thesis.hive.stoperations;
 import di.thesis.hive.test.LoggerPolygon;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import di.thesis.indexing.types.EnvelopeST;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
@@ -148,7 +147,9 @@ public class IndexIntersects3D extends GenericUDTF {
             long mbb1_mints = ((LongWritable) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("mint")))).get();
             long mbb1_maxts = ((LongWritable) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("maxt")))).get();
 
-            STRtree3D retrievedObject = SerializationUtils.deserialize(tree.getBytes());
+            ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
+            ObjectInput in = new ObjectInputStream(bis);
+            STRtree3D retrievedObject = (STRtree3D)in.readObject();
 
             EnvelopeST env = new EnvelopeST(mbb1_minlon - min_ext_lon, mbb1_maxlon + max_ext_lon,
                     mbb1_minlat - min_ext_lat, mbb1_maxlat + max_ext_lat,
@@ -157,7 +158,6 @@ public class IndexIntersects3D extends GenericUDTF {
             List tree_results = retrievedObject.queryID(env);
 
             for (int i = 0; i < tree_results.size(); i++) {
-
                 Long entry = (Long) tree_results.get(i);
                 forwardMapObj[0]=new LongWritable(pid);
                 forwardMapObj[1] = new LongWritable(entry);
