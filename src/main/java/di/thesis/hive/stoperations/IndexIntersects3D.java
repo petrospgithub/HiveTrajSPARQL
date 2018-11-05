@@ -49,7 +49,7 @@ public class IndexIntersects3D extends GenericUDTF {
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
-        if (objectInspectors.length!=8)
+        if (objectInspectors.length!=9)
             throw new UDFArgumentLengthException("ST_IndexIntersects only takes 8 arguments!");
 
         try {
