@@ -1,23 +1,20 @@
 package di.thesis.hive.similarity;
 
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
-import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
-import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
+import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
+import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.nustaq.serialization.FSTConfiguration;
 import utils.checking;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class IndexKNN extends GenericUDF {
+public class IndexKNN extends GenericUDTF {
 
     private BinaryObjectInspector treeIO=null;
     private ListObjectInspector listOI;
@@ -26,7 +23,92 @@ public class IndexKNN extends GenericUDF {
     private HiveDecimalObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
+    private WritableLongObjectInspector partidOI;
 
+    @Override
+    public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
+
+       // if (objectInspectors.length!=9)
+           // throw new UDFArgumentLengthException("ST_IndexIntersects only takes 8 arguments!");
+
+        try {
+
+            listOI = (ListObjectInspector) objectInspectors[0];
+            structOI=(SettableStructObjectInspector)listOI.getListElementObjectInspector();
+
+            treeIO=(BinaryObjectInspector) objectInspectors[1];
+
+            // k=(IntObjectInspector) objectInspectors[2];
+            dist_threshold=(HiveDecimalObjectInspector) objectInspectors[2];
+            minT_tolerance=(IntObjectInspector) objectInspectors[3];
+            maxT_tolerance=(IntObjectInspector) objectInspectors[4];
+
+            partidOI=(WritableLongObjectInspector)objectInspectors[5];
+
+
+            boolean check= checking.point(structOI);
+
+            if(!check){
+                throw new UDFArgumentException("Invalid traj points structure (var names)");
+            }
+
+        } catch (RuntimeException e) {
+            throw new UDFArgumentException(e);
+        }
+
+        ArrayList<String> fieldNames = new ArrayList<String>();
+        ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
+        fieldNames.add("pid");
+        fieldNames.add("trajectory_id");
+        fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+        fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+
+        return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
+                fieldOIs);
+
+    }
+
+    private transient final Object[] forwardMapObj = new Object[2];
+
+    @Override
+    public void process(Object[] objects) throws HiveException {
+
+        try {
+            BytesWritable tree=treeIO.getPrimitiveWritableObject(objects[1]);
+
+            long pid=partidOI.get(objects[5]);
+
+            STRtree3D retrievedObject = SerializationUtils.deserialize(tree.getBytes());
+            Object traj=objects[0];
+
+            double threshold= dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
+            int minTtolerance= minT_tolerance.get(objects[3]);
+            int maxTtolerance= maxT_tolerance.get(objects[4]);
+
+            List tree_results=retrievedObject.knn(traj, listOI, structOI, threshold, minTtolerance, maxTtolerance);
+
+            for (int i=0; i<tree_results.size(); i++) {
+                Long entry = (Long) tree_results.get(i);
+                forwardMapObj[0]=new LongWritable(pid);
+                forwardMapObj[1] = new LongWritable(entry);
+                forward(forwardMapObj);
+            }
+
+            //return result;
+
+        } catch (Exception e) {
+            throw new HiveException(e);
+        }
+    }
+
+    @Override
+    public void close() throws HiveException {
+
+    }
+
+
+
+/*
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
@@ -98,4 +180,5 @@ public class IndexKNN extends GenericUDF {
     public String getDisplayString(String[] strings) {
         return null;
     }
+    */
 }
