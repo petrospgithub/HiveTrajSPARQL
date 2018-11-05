@@ -1,5 +1,7 @@
 package di.thesis.hive.stoperations;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
 import di.thesis.hive.test.LoggerPolygon;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import di.thesis.indexing.types.EnvelopeST;
@@ -42,6 +44,8 @@ public class IndexIntersects3D extends GenericUDTF {
     private IntObjectInspector mint_tolerance;
     private IntObjectInspector maxt_tolerance;
 
+    private WritableLongObjectInspector partidOI;
+
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
@@ -71,6 +75,8 @@ public class IndexIntersects3D extends GenericUDTF {
             mint_tolerance = (IntObjectInspector) mintOI;
             maxt_tolerance = (IntObjectInspector) maxtOI;
 
+            partidOI=(WritableLongObjectInspector)objectInspectors[8];
+
             boolean check = checking.mbb(queryIO);
 
             if (!check) {
@@ -78,8 +84,10 @@ public class IndexIntersects3D extends GenericUDTF {
             }
             ArrayList<String> fieldNames = new ArrayList<String>();
             ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-            fieldNames.add("col");
+            fieldNames.add("pid");
+            fieldNames.add("trajectory_id");
             //fieldOIs.add(PrimitiveObjectInspectorFactory.javaLongObjectInspector);
+            fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
             fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
 
             return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
@@ -92,7 +100,7 @@ public class IndexIntersects3D extends GenericUDTF {
 
     }
 
-    private transient final Object[] forwardListObj = new Object[1];
+    private transient final Object[] forwardMapObj = new Object[2];
 
     @Override
     public void process(Object[] objects) throws HiveException {
@@ -101,9 +109,11 @@ public class IndexIntersects3D extends GenericUDTF {
 
         BytesWritable tree=treeIO.getPrimitiveWritableObject(objects[1]);
 
+        long pid=partidOI.get(objects[8]);
+
         //byte[] tree=(byte[])objects[1];
 
-        ArrayList<LongWritable> result = new ArrayList<>();
+        //ArrayList<LongWritable> result = new ArrayList<>();
 
         try {
 
@@ -139,7 +149,7 @@ public class IndexIntersects3D extends GenericUDTF {
 
             long mbb1_mints = ((LongWritable) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("mint")))).get();
             long mbb1_maxts = ((LongWritable) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("maxt")))).get();
-
+/*
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
 
          //   ByteArrayInputStream bis = new ByteArrayInputStream(tree);
@@ -148,6 +158,12 @@ public class IndexIntersects3D extends GenericUDTF {
 
             in = new ObjectInputStream(bis);
             STRtree3D retrievedObject = (STRtree3D) in.readObject();
+*/
+
+            Kryo kryo=new Kryo();
+            Input input=new Input(new ByteArrayInputStream(tree.getBytes()));
+            STRtree3D retrievedObject = kryo.readObject(input, STRtree3D.class);
+            //input.close();
 
             EnvelopeST env = new EnvelopeST(mbb1_minlon - min_ext_lon, mbb1_maxlon + max_ext_lon,
                     mbb1_minlat - min_ext_lat, mbb1_maxlat + max_ext_lat,
@@ -158,9 +174,9 @@ public class IndexIntersects3D extends GenericUDTF {
             for (int i = 0; i < tree_results.size(); i++) {
 
                 Long entry = (Long) tree_results.get(i);
-
-                forwardListObj[0] = new LongWritable(entry);
-                forward(forwardListObj);
+                forwardMapObj[0]=new LongWritable(pid);
+                forwardMapObj[1] = new LongWritable(entry);
+                forward(forwardMapObj);
             }
         } catch (Exception e) {
             throw new HiveException(e);
