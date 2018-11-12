@@ -60,9 +60,9 @@ public class IndexKNN extends GenericUDTF {
 
         ArrayList<String> fieldNames = new ArrayList<String>();
         ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-        fieldNames.add("pid");
+        //fieldNames.add("pid");
         fieldNames.add("trajectory_id");
-        fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+      //  fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
         fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
 
         return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
@@ -70,7 +70,7 @@ public class IndexKNN extends GenericUDTF {
 
     }
 
-    private transient final Object[] forwardMapObj = new Object[2];
+    private transient final Object[] forwardMapObj = new Object[1];
 
     @Override
     public void process(Object[] objects) throws HiveException {
@@ -94,8 +94,8 @@ public class IndexKNN extends GenericUDTF {
 
             for (int i=0; i<tree_results.size(); i++) {
                 Long entry = (Long) tree_results.get(i);
-                forwardMapObj[0]=new LongWritable(pid);
-                forwardMapObj[1] = new LongWritable(entry);
+                //forwardMapObj[0]=new LongWritable(pid);
+                forwardMapObj[0] = new LongWritable(entry);
                 forward(forwardMapObj);
             }
 
