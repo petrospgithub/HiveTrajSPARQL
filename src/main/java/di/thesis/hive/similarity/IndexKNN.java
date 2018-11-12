@@ -25,7 +25,7 @@ public class IndexKNN extends GenericUDTF {
     private HiveDecimalObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
-    private WritableLongObjectInspector partidOI;
+    private WritableLongObjectInspector traj_rowID;
 
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
@@ -45,7 +45,7 @@ public class IndexKNN extends GenericUDTF {
             minT_tolerance=(IntObjectInspector) objectInspectors[3];
             maxT_tolerance=(IntObjectInspector) objectInspectors[4];
 
-            partidOI=(WritableLongObjectInspector)objectInspectors[5];
+            traj_rowID=(WritableLongObjectInspector)objectInspectors[5];
 
 
             boolean check= checking.point(structOI);
@@ -60,9 +60,9 @@ public class IndexKNN extends GenericUDTF {
 
         ArrayList<String> fieldNames = new ArrayList<String>();
         ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-        //fieldNames.add("pid");
+        fieldNames.add("rowID");
         fieldNames.add("trajectory_id");
-      //  fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+        fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
         fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
 
         return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
@@ -70,7 +70,7 @@ public class IndexKNN extends GenericUDTF {
 
     }
 
-    private transient final Object[] forwardMapObj = new Object[1];
+    private transient final Object[] forwardMapObj = new Object[2];
 
     @Override
     public void process(Object[] objects) throws HiveException {
@@ -78,7 +78,7 @@ public class IndexKNN extends GenericUDTF {
         try {
             BytesWritable tree=treeIO.getPrimitiveWritableObject(objects[1]);
 
-            long pid=partidOI.get(objects[5]);
+            long rowID=traj_rowID.get(objects[5]);
 
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
             ObjectInput in = new ObjectInputStream(bis);
@@ -94,8 +94,8 @@ public class IndexKNN extends GenericUDTF {
 
             for (int i=0; i<tree_results.size(); i++) {
                 Long entry = (Long) tree_results.get(i);
-                //forwardMapObj[0]=new LongWritable(pid);
-                forwardMapObj[0] = new LongWritable(entry);
+                forwardMapObj[0]=new LongWritable(rowID);
+                forwardMapObj[1] = new LongWritable(entry);
                 forward(forwardMapObj);
             }
 
