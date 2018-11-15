@@ -47,7 +47,7 @@ public class IndexIntersects3D extends GenericUDTF {
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
-        if (objectInspectors.length!=9)
+        if (objectInspectors.length!=8)
             throw new UDFArgumentLengthException("ST_IndexIntersects only takes 8 arguments!");
 
         try {
@@ -73,7 +73,7 @@ public class IndexIntersects3D extends GenericUDTF {
             mint_tolerance = (IntObjectInspector) mintOI;
             maxt_tolerance = (IntObjectInspector) maxtOI;
 
-            partidOI=(WritableLongObjectInspector)objectInspectors[8];
+           // partidOI=(WritableLongObjectInspector)objectInspectors[8];
 
             boolean check = checking.mbb(queryIO);
 
@@ -106,7 +106,7 @@ public class IndexIntersects3D extends GenericUDTF {
 
         BytesWritable tree=treeIO.getPrimitiveWritableObject(objects[1]);
 
-        long pid=partidOI.get(objects[8]);
+      //  long pid=partidOI.get(objects[8]);
 
         //byte[] tree=(byte[])objects[1];
 
