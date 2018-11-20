@@ -61,7 +61,7 @@ public class IndexKNN extends GenericUDTF {
             throw new UDFArgumentException(e);
         }
 
-        forwardMapObj=new Object[(objectInspectors.length-5)+1];
+        forwardMapObj=new Object[(objectInspectors.length-5)+2];
 
         ArrayList<String> fieldNames = new ArrayList<String>();
         ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
