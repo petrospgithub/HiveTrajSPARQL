@@ -2,6 +2,7 @@ package di.thesis.hive.similarity;
 
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
@@ -27,11 +28,13 @@ public class IndexKNN extends GenericUDTF {
     private IntObjectInspector maxT_tolerance;
     private WritableLongObjectInspector traj_rowID;
 
+    private transient Object[] forwardMapObj = null;
+
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
-       // if (objectInspectors.length!=9)
-           // throw new UDFArgumentLengthException("ST_IndexIntersects only takes 8 arguments!");
+       if (objectInspectors.length<6)
+           throw new UDFArgumentLengthException("IndexKNN at least 6 arguments!");
 
         try {
 
@@ -58,19 +61,30 @@ public class IndexKNN extends GenericUDTF {
             throw new UDFArgumentException(e);
         }
 
+        forwardMapObj=new Object[(objectInspectors.length-5)+1];
+
         ArrayList<String> fieldNames = new ArrayList<String>();
         ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-        fieldNames.add("rowID");
         fieldNames.add("trajectory_id");
+        fieldNames.add("rowID");
+        fieldNames.add("trajectory");
+
         fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
         fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+        fieldOIs.add(objectInspectors[0]);
+
+
+        for (int i=6; i<objectInspectors.length; i++) {
+            fieldNames.add("col"+i);
+            fieldOIs.add(objectInspectors[i]);
+        }
 
         return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
                 fieldOIs);
 
     }
 
-    private transient final Object[] forwardMapObj = new Object[2];
+    //private transient final Object[] forwardMapObj = new Object[2];
 
     @Override
     public void process(Object[] objects) throws HiveException {
@@ -94,8 +108,15 @@ public class IndexKNN extends GenericUDTF {
 
             for (int i=0; i<tree_results.size(); i++) {
                 Long entry = (Long) tree_results.get(i);
-                forwardMapObj[0]=new LongWritable(rowID);
-                forwardMapObj[1] = new LongWritable(entry);
+                forwardMapObj[0]=new LongWritable(entry);
+                forwardMapObj[1] = new LongWritable(rowID);
+                forwardMapObj[2] = traj;
+
+
+                for (int j=6; j<objects.length; j++) {
+                    forwardMapObj[j-3]=objects[j];
+                }
+
                 forward(forwardMapObj);
             }
 
