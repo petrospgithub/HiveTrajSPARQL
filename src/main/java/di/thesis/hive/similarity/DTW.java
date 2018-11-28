@@ -28,7 +28,7 @@ public class DTW extends GenericUDF {
     private IntObjectInspector fast;
     private StringObjectInspector func_name;
 
-    private HiveDecimalObjectInspector accept_dist;
+   // private HiveDecimalObjectInspector accept_dist;
 
     private IntObjectInspector min_ts_tolerance;
     private IntObjectInspector max_ts_tolerance;
@@ -36,7 +36,7 @@ public class DTW extends GenericUDF {
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
-        if (objectInspectors.length!=7)
+        if (objectInspectors.length!=6)
             throw new UDFArgumentLengthException("DTW only takes 7 arguments!");
 
         try {
@@ -49,11 +49,11 @@ public class DTW extends GenericUDF {
             fast = (IntObjectInspector)objectInspectors[2];
             func_name=(StringObjectInspector)objectInspectors[3];
 
-            accept_dist=(WritableConstantHiveDecimalObjectInspector) objectInspectors[4];
+          //  accept_dist=(WritableConstantHiveDecimalObjectInspector) objectInspectors[4];
 
-            min_ts_tolerance=(IntObjectInspector) objectInspectors[5];
+            min_ts_tolerance=(IntObjectInspector) objectInspectors[4];
 
-            max_ts_tolerance=(IntObjectInspector) objectInspectors[6];
+            max_ts_tolerance=(IntObjectInspector) objectInspectors[5];
 
 
             boolean check= checking.point(trajectoryA_structOI);
@@ -83,10 +83,10 @@ public class DTW extends GenericUDF {
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[3].get());
 
-        double d=accept_dist.getPrimitiveJavaObject(deferredObjects[4].get()).doubleValue();
+        //double d=accept_dist.getPrimitiveJavaObject(deferredObjects[4].get()).doubleValue();
 
-        int minTSext=min_ts_tolerance.get(deferredObjects[5].get());
-        int maxTSext=max_ts_tolerance.get(deferredObjects[6].get());
+        int minTSext=min_ts_tolerance.get(deferredObjects[4].get());
+        int maxTSext=max_ts_tolerance.get(deferredObjects[5].get());
 
         PointDistance func;
 
@@ -114,24 +114,24 @@ public class DTW extends GenericUDF {
 
             double traj_dist=(calc / (double)Math.min(trajectoryA_length,trajectoryB_length));
 
-            if (traj_dist<=d) {
+            //if (traj_dist<=d) {
                 return new DoubleWritable(traj_dist);
-            } else {
-                return null;
-            }
+           // } else {
+           //     return new DoubleWritable(Double.MAX_VALUE);
+           // }
 
         } else if ( (min_tsA-minTSext)<=max_tsB && min_tsB<=(max_tsA+maxTSext) ) {
             double calc=calculate(trajectoryA_length, trajectoryB_length, trajA, trajB, func, w);
 
             double traj_dist=(calc / (double)Math.min(trajectoryA_length,trajectoryB_length));
 
-            if (traj_dist<=d) {
+          //  if (traj_dist<=d) {
                 return new DoubleWritable(traj_dist);
-            } else {
-                return null;
-            }
+           // } else {
+           //     return null;
+            //}
         } else {
-            return null;
+            return new DoubleWritable(Double.MAX_VALUE);
         }
 
     }
