@@ -67,7 +67,7 @@ public class LCSS extends GenericUDF {
 
         int trajectoryA_length=trajectoryA_listOI.getListLength(trajA);
 
-        int trajectoryB_length=trajectoryA_listOI.getListLength(trajB);
+        int trajectoryB_length=trajectoryB_listOI.getListLength(trajB);
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[2].get());
 
