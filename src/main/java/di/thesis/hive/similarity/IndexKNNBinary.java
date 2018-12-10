@@ -1,6 +1,7 @@
 package di.thesis.hive.similarity;
 
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
+import di.thesis.indexing.types.PointST;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -9,6 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
+import utils.SerDerUtil;
 import utils.checking;
 
 import java.io.ByteArrayInputStream;
@@ -17,11 +19,13 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IndexKNN extends GenericUDTF {
+public class IndexKNNBinary extends GenericUDTF {
 
     private BinaryObjectInspector treeOI=null;
-    private ListObjectInspector listOI;
-    private SettableStructObjectInspector structOI;
+  //  private ListObjectInspector listOI;
+   // private SettableStructObjectInspector structOI;
+
+    private BinaryObjectInspector queryOI=null;
 
     private HiveDecimalObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
@@ -33,13 +37,15 @@ public class IndexKNN extends GenericUDTF {
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
-       if (objectInspectors.length<6)
-           throw new UDFArgumentLengthException("IndexKNN at least 6 arguments!");
+        if (objectInspectors.length<6)
+            throw new UDFArgumentLengthException("IndexKNN at least 6 arguments!");
 
         try {
 
-            listOI = (ListObjectInspector) objectInspectors[0];
-            structOI=(SettableStructObjectInspector)listOI.getListElementObjectInspector();
+          //  listOI = (ListObjectInspector) objectInspectors[0];
+           // structOI=(SettableStructObjectInspector)listOI.getListElementObjectInspector();
+
+            queryOI=(BinaryObjectInspector) objectInspectors[0];
 
             treeOI=(BinaryObjectInspector) objectInspectors[1];
 
@@ -51,11 +57,6 @@ public class IndexKNN extends GenericUDTF {
             traj_rowID=(WritableLongObjectInspector)objectInspectors[5];
 
 
-            boolean check= checking.point(structOI);
-
-            if(!check){
-                throw new UDFArgumentException("Invalid traj points structure (var names)");
-            }
 
         } catch (RuntimeException e) {
             throw new UDFArgumentException(e);
@@ -98,19 +99,27 @@ public class IndexKNN extends GenericUDTF {
             ObjectInput in = new ObjectInputStream(bis);
             STRtree3D retrievedObject = (STRtree3D)in.readObject();
 
-            Object traj=objects[0];
+            //Object traj=objects[0];
+
+
+            BytesWritable trajBinaryA = queryOI.getPrimitiveWritableObject(objects[0]);
+            PointST[] trajectoryA = SerDerUtil.trajectory_deserialize(trajBinaryA.getBytes());
+
 
             double threshold= dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
             int minTtolerance= minT_tolerance.get(objects[3]);
             int maxTtolerance= maxT_tolerance.get(objects[4]);
 
-            List tree_results=retrievedObject.knn(traj, listOI, structOI, threshold, minTtolerance, maxTtolerance);
+
+
+
+            List tree_results=retrievedObject.knn(trajectoryA, threshold, minTtolerance, maxTtolerance);
 
             for (int i=0; i<tree_results.size(); i++) {
                 Long entry = (Long) tree_results.get(i);
                 forwardMapObj[0]=new LongWritable(entry);
                 forwardMapObj[1] = new LongWritable(rowID);
-                forwardMapObj[2] = traj;
+                forwardMapObj[2] = trajectoryA;
 
 
                 for (int j=6; j<objects.length; j++) {
@@ -131,80 +140,4 @@ public class IndexKNN extends GenericUDTF {
     public void close() throws HiveException {
 
     }
-
-
-
-/*
-    @Override
-    public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
-
-        try {
-
-            listOI = (ListObjectInspector) objectInspectors[0];
-            structOI=(SettableStructObjectInspector)listOI.getListElementObjectInspector();
-
-            treeIO=(BinaryObjectInspector) objectInspectors[1];
-
-           // k=(IntObjectInspector) objectInspectors[2];
-            dist_threshold=(HiveDecimalObjectInspector) objectInspectors[2];
-            minT_tolerance=(IntObjectInspector) objectInspectors[3];
-            maxT_tolerance=(IntObjectInspector) objectInspectors[4];
-
-            boolean check= checking.point(structOI);
-
-            if(!check){
-                throw new UDFArgumentException("Invalid traj points structure (var names)");
-            }
-
-        } catch (RuntimeException e) {
-            throw new UDFArgumentException(e);
-        }
-
-        return ObjectInspectorFactory
-                .getStandardListObjectInspector(PrimitiveObjectInspectorFactory
-                        .writableLongObjectInspector);
-    }
-
-    @Override
-    public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
-
-        BytesWritable tree=treeIO.getPrimitiveWritableObject(deferredObjects[1].get());
-
-
-        ArrayList<LongWritable> result = new ArrayList<>();
-
-        try {
-
-            FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
-
-            STRtree3D retrievedObject = (STRtree3D)conf.asObject(tree.getBytes());
-            Object traj=deferredObjects[0].get();
-
-            double threshold= dist_threshold.getPrimitiveJavaObject(deferredObjects[2].get()).doubleValue();
-            int minTtolerance= minT_tolerance.get(deferredObjects[3].get());
-            int maxTtolerance= maxT_tolerance.get(deferredObjects[4].get());
-
-            List tree_results=retrievedObject.knn(traj, listOI, structOI, threshold, minTtolerance, maxTtolerance);
-
-            for (int i=0; i<tree_results.size(); i++) {
-
-                Long entry=(Long)tree_results.get(i);
-
-                result.add(new LongWritable(entry));
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            throw new HiveException(e);
-        }
-
-       // return null;
-    }
-
-    @Override
-    public String getDisplayString(String[] strings) {
-        return null;
-    }
-    */
 }

@@ -6,22 +6,6 @@ import hivemall.utils.hadoop.HiveUtils;
 import hivemall.utils.lang.CommandLineUtils;
 import hivemall.utils.lang.NaturalComparator;
 import hivemall.utils.lang.Preconditions;
-import hivemall.utils.struct.Pair;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -29,36 +13,26 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFParameterInfo;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
-import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
 import scala.Tuple4;
 
-/**
- * Return list of values sorted by value itself or specific key.
- */
-@Description(name = "to_ordered_list",
-        value = "_FUNC_(PRIMITIVE value [, PRIMITIVE key, const string options])"
-                + " - Return list of values sorted by value itself or specific key")
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.*;
 
-
-/*
-todo
-add logger in order to check work flow
-check how to add more input columns (data)
-change output structure
- */
-
-public final class ToOrderedList extends AbstractGenericUDAFResolver {
+public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
     private static final Log LOG = LogFactory.getLog(ToOrderedList.class.getName());
 
@@ -258,7 +232,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             } else {// terminate
 
                 //outputOI = ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.javaStringObjectInspector);
-                outputOI=PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+                outputOI= PrimitiveObjectInspectorFactory.writableStringObjectInspector;
             }
 
             return outputOI;
@@ -285,8 +259,11 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             fieldNames.add("traja");
             fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector()));
 
+            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
+
+
             fieldNames.add("trajb");
-            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector()));
+            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
 
 
             return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
@@ -424,7 +401,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             for (int i = 0, n = trajAListRaw.size(); i < n; i++) {
                 trajAList.add(ObjectInspectorUtils.copyToStandardObject(trajAListRaw.get(i),
-                        trajOI.TrajectoryObjectInspector()));
+                        PrimitiveObjectInspectorFactory.writableBinaryObjectInspector)); // TODO check!!!
             }
 
 
@@ -435,7 +412,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
                 trajBList.add(ObjectInspectorUtils.copyToStandardObject(trajBListRaw.get(i),
-                        trajOI.TrajectoryObjectInspector()));
+                        PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
             }
 
             myagg.merge(keyList, valueList, trajAList, trajBList);

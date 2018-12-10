@@ -12,15 +12,33 @@ public class SpatioTemporalObjectInspector {
         ArrayList<ObjectInspector> structFieldObjectInspectors = new ArrayList<ObjectInspector>();
 
         // fill struct field names
-        // timestamp
-        structFieldNames.add("timestamp");
-        structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
         //longitude
         structFieldNames.add("longitude");
         structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
         // latitude
         structFieldNames.add("latitude");
         structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+        structFieldNames.add("timestamp");
+        structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+
+        StandardStructObjectInspector si = ObjectInspectorFactory.getStandardStructObjectInspector(structFieldNames,
+                structFieldObjectInspectors);
+        return si;
+    }
+
+    public StandardStructObjectInspector JavaPointObjectInspector() {
+        ArrayList<String> structFieldNames = new ArrayList<String>();
+        ArrayList<ObjectInspector> structFieldObjectInspectors = new ArrayList<ObjectInspector>();
+
+        // fill struct field names
+        //longitude
+        structFieldNames.add("longitude");
+        structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.javaDoubleObjectInspector);
+        // latitude
+        structFieldNames.add("latitude");
+        structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.javaDoubleObjectInspector);
+        structFieldNames.add("timestamp");
+        structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.javaLongObjectInspector);
 
         StandardStructObjectInspector si = ObjectInspectorFactory.getStandardStructObjectInspector(structFieldNames,
                 structFieldObjectInspectors);
@@ -117,6 +135,14 @@ public class SpatioTemporalObjectInspector {
     public StandardListObjectInspector TrajectoryObjectInspector() {
 
         StandardStructObjectInspector pointst=PointObjectInspector();
+
+        return ObjectInspectorFactory.getStandardListObjectInspector(pointst);
+
+    }
+
+    public StandardListObjectInspector JavaTrajectoryObjectInspector() {
+
+        StandardStructObjectInspector pointst=JavaPointObjectInspector();
 
         return ObjectInspectorFactory.getStandardListObjectInspector(pointst);
 

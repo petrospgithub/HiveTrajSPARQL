@@ -17,7 +17,7 @@ import utils.checking;
 
 import java.util.Objects;
 
-public class DTW extends GenericUDF {
+public class DTWUDF extends GenericUDF {
 
     private ListObjectInspector trajectoryA_listOI;
     private SettableStructObjectInspector trajectoryA_structOI;
@@ -37,7 +37,7 @@ public class DTW extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
         if (objectInspectors.length!=6)
-            throw new UDFArgumentLengthException("DTW only takes 7 arguments!");
+            throw new UDFArgumentLengthException("DTWUDF only takes 7 arguments!");
 
         try {
             trajectoryA_listOI = (StandardListObjectInspector) objectInspectors[0];
@@ -106,7 +106,7 @@ public class DTW extends GenericUDF {
         long min_tsB = ((LongWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajA, 0), trajectoryB_structOI.getStructFieldRef("timestamp")))).get();
         long max_tsB = ((LongWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajA, trajectoryA_length-1), trajectoryB_structOI.getStructFieldRef("timestamp")))).get();
 
-        //an einai arnhtika kai ta 2 sigoura DTW
+        //an einai arnhtika kai ta 2 sigoura DTWUDF
         //an einai 8etika kai ta 2 koitaw an kanoun overlap
 
         if (minTSext<0 || maxTSext<0) {

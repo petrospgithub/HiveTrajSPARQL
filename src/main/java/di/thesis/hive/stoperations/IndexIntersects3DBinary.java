@@ -17,6 +17,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
+import utils.SerDerUtil;
 import utils.checking;
 
 import java.io.ByteArrayInputStream;
@@ -25,12 +26,15 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IndexIntersects3D extends GenericUDTF {
+public class IndexIntersects3DBinary extends GenericUDTF {
 
     private static final Log LOG = LogFactory.getLog(LoggerPolygon.class.getName());
 
 
-    private SettableStructObjectInspector queryOI=null;
+   // private SettableStructObjectInspector queryIO=null;
+    private BinaryObjectInspector queryOI=null;
+
+
     private BinaryObjectInspector treeOI=null;
 
     private HiveDecimalObjectInspector minx_tolerance;
@@ -51,7 +55,7 @@ public class IndexIntersects3D extends GenericUDTF {
             throw new UDFArgumentLengthException("ST_IndexIntersects only takes 8 arguments!");
 
         try {
-            queryOI = (SettableStructObjectInspector) objectInspectors[0];
+            queryOI = (BinaryObjectInspector) objectInspectors[0];
             treeOI = (BinaryObjectInspector) objectInspectors[1];
 
             ObjectInspector minxOI = objectInspectors[2];
@@ -73,19 +77,15 @@ public class IndexIntersects3D extends GenericUDTF {
             mint_tolerance = (IntObjectInspector) mintOI;
             maxt_tolerance = (IntObjectInspector) maxtOI;
 
-           // partidOI=(WritableLongObjectInspector)objectInspectors[8];
+            // partidOI=(WritableLongObjectInspector)objectInspectors[8];
 
-            boolean check = checking.mbb(queryOI);
 
-            if (!check) {
-                throw new UDFArgumentException("Invalid box structure (var names)");
-            }
             ArrayList<String> fieldNames = new ArrayList<String>();
             ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-           // fieldNames.add("pid");
+            // fieldNames.add("pid");
             fieldNames.add("trajectory_id");
             //fieldOIs.add(PrimitiveObjectInspectorFactory.javaLongObjectInspector);
-           // fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+            // fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
             fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
 
             return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
@@ -102,11 +102,11 @@ public class IndexIntersects3D extends GenericUDTF {
     @Override
     public void process(Object[] objects) throws HiveException {
 
-       // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " +  objects[1].getClass().getCanonicalName() );
+        // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " +  objects[1].getClass().getCanonicalName() );
 
         BytesWritable tree=treeOI.getPrimitiveWritableObject(objects[1]);
 
-      //  long pid=partidOI.get(objects[8]);
+        //  long pid=partidOI.get(objects[8]);
 
         //byte[] tree=(byte[])objects[1];
 
@@ -114,14 +114,14 @@ public class IndexIntersects3D extends GenericUDTF {
 
         try {
 
-         double min_ext_lon = minx_tolerance.getPrimitiveJavaObject(objects[2]).doubleValue();
-         double max_ext_lon = maxx_tolerance.getPrimitiveJavaObject(objects[3]).doubleValue();
+            double min_ext_lon = minx_tolerance.getPrimitiveJavaObject(objects[2]).doubleValue();
+            double max_ext_lon = maxx_tolerance.getPrimitiveJavaObject(objects[3]).doubleValue();
 
-         double min_ext_lat = miny_tolerance.getPrimitiveJavaObject(objects[4]).doubleValue();
-         double max_ext_lat = maxy_tolerance.getPrimitiveJavaObject(objects[5]).doubleValue();
+            double min_ext_lat = miny_tolerance.getPrimitiveJavaObject(objects[4]).doubleValue();
+            double max_ext_lat = maxy_tolerance.getPrimitiveJavaObject(objects[5]).doubleValue();
 
-          long min_ext_ts = mint_tolerance.get(objects[6]);
-          long max_ext_ts = maxt_tolerance.get(objects[7]);
+            long min_ext_ts = mint_tolerance.get(objects[6]);
+            long max_ext_ts = maxt_tolerance.get(objects[7]);
 
             if (min_ext_lon < 0 ||
                     max_ext_lon < 0 || min_ext_lat < 0 || max_ext_lat < 0 || min_ext_ts < 0 || max_ext_ts < 0) {
@@ -138,28 +138,24 @@ public class IndexIntersects3D extends GenericUDTF {
             long mbb1_maxts = ((long) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("maxt"))));
 */
 
-            double mbb1_minlon = ((DoubleWritable) (queryOI.getStructFieldData(objects[0], queryOI.getStructFieldRef("minx")))).get();
-            double mbb1_maxlon = ((DoubleWritable) (queryOI.getStructFieldData(objects[0], queryOI.getStructFieldRef("maxx")))).get();
 
-            double mbb1_minlat = ((DoubleWritable) (queryOI.getStructFieldData(objects[0], queryOI.getStructFieldRef("miny")))).get();
-            double mbb1_maxlat = ((DoubleWritable) (queryOI.getStructFieldData(objects[0], queryOI.getStructFieldRef("maxy")))).get();
-
-            long mbb1_mints = ((LongWritable) (queryOI.getStructFieldData(objects[0], queryOI.getStructFieldRef("mint")))).get();
-            long mbb1_maxts = ((LongWritable) (queryOI.getStructFieldData(objects[0], queryOI.getStructFieldRef("maxt")))).get();
+            BytesWritable mbb_bytes=queryOI.getPrimitiveWritableObject(objects[0]);
+            EnvelopeST mbb= SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
 
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
             ObjectInput in = new ObjectInputStream(bis);
             STRtree3D retrievedObject = (STRtree3D)in.readObject();
 
+            /*
             EnvelopeST env = new EnvelopeST(mbb1_minlon - min_ext_lon, mbb1_maxlon + max_ext_lon,
                     mbb1_minlat - min_ext_lat, mbb1_maxlat + max_ext_lat,
                     mbb1_mints - min_ext_ts, mbb1_maxts + max_ext_ts);
-
-            List tree_results = retrievedObject.queryID(env);
+*/
+            List tree_results = retrievedObject.queryID(mbb);
 
             for (int i = 0; i < tree_results.size(); i++) {
                 Long entry = (Long) tree_results.get(i);
-               // forwardMapObj[0]=new LongWritable(pid);
+                // forwardMapObj[0]=new LongWritable(pid);
                 forwardMapObj[0] = new LongWritable(entry);
                 forward(forwardMapObj);
             }

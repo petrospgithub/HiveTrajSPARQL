@@ -16,7 +16,7 @@ import org.apache.hadoop.io.LongWritable;
 import utils.checking;
 
 import java.util.Objects;
-public class LCSS extends GenericUDF {
+public class LCSSUDF extends GenericUDF {
 
     private ListObjectInspector trajectoryA_listOI;
     private SettableStructObjectInspector trajectoryA_structOI;
@@ -31,7 +31,7 @@ public class LCSS extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
         if (objectInspectors.length!=5)
-            throw new UDFArgumentLengthException("LCSS only takes 5 arguments!");
+            throw new UDFArgumentLengthException("LCSSUDF only takes 5 arguments!");
 
         try {
             trajectoryA_listOI = (StandardListObjectInspector) objectInspectors[0];
@@ -129,7 +129,7 @@ public class LCSS extends GenericUDF {
             }
         }
 
-        /* bazoume ena alignment ston xrono...  stin DTW metrame mono apostash xwris na logariazoume to xrono*/
+        /* bazoume ena alignment ston xrono...  stin DTWUDF metrame mono apostash xwris na logariazoume to xrono*/
 
         int a = trajectoryA_length;
         int b = trajectoryB_length;
