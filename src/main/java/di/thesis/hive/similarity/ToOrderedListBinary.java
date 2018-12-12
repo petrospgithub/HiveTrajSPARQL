@@ -69,7 +69,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                             + typeInfo.length);
         }
         */
-        return new OrderedListDebbuging.UDAFToOrderedListEvaluator();
+        return new ToOrderedListBinary.UDAFToOrderedListEvaluator();
     }
 
     public static class UDAFToOrderedListEvaluator extends GenericUDAFEvaluator {
@@ -272,7 +272,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
         @SuppressWarnings("deprecation")
         @Override
         public AggregationBuffer getNewAggregationBuffer() throws HiveException {
-            OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = new OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer();
+            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = new UDAFToOrderedListEvaluator.QueueAggregationBuffer();
             reset(myagg);
             return myagg;
         }
@@ -280,7 +280,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
         @Override
         public void reset(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
-            OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
+            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             myagg.reset(size, reverseOrder);
         }
 
@@ -382,7 +382,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             Object reverseOrderObj = internalMergeOI.getStructFieldData(partial, reverseOrderField);
             boolean reverseOrder = PrimitiveObjectInspectorFactory.writableBooleanObjectInspector.get(reverseOrderObj);
 
-            OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
+            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             myagg.setOptions(size, reverseOrder);
 
             //       LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ check " + this.internalMergeOI.getAllStructFieldRefs());
@@ -421,7 +421,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
         @Override
         public String terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
-            OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (OrderedListDebbuging.UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
+            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             Tuple4<List<Object>,List<Object>,List<Object>,List<Object>>tuples = myagg.drainQueue();
             if (tuples == null) {
                 return null;
