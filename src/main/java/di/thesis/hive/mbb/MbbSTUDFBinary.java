@@ -83,7 +83,7 @@ public class MbbSTUDFBinary extends GenericUDF {
                     (long) max_timestamp.getPrimitiveJavaObject(deferredObjects[5].get())
                     );
 
-            return SerDerUtil.mbb_serialize(envelopeST);
+            return new BytesWritable(SerDerUtil.mbb_serialize(envelopeST));
 
         } else {
             throw new RuntimeException("Invalid input");
