@@ -149,7 +149,7 @@ public class MbbSTUDFBinary extends GenericUDF {
 
             EnvelopeST envelopeST=new EnvelopeST(min_lon, max_lon, min_lat, max_lat, min_ts, max_ts);
 
-            return SerDerUtil.mbb_serialize(envelopeST);
+            return new BytesWritable(SerDerUtil.mbb_serialize(envelopeST));
 
         } catch (Exception e) {
             throw new RuntimeException(e);
