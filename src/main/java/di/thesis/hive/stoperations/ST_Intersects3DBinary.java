@@ -95,10 +95,10 @@ public class ST_Intersects3DBinary extends GenericUDF {
 
         try {
 
-            BytesWritable query=box.getPrimitiveWritableObject(deferredObjects[0]);
+            BytesWritable query=box.getPrimitiveWritableObject(deferredObjects[0].get());
             EnvelopeST mbb=SerDerUtil.mbb_deserialize(query.getBytes());
 
-            BytesWritable trajB=queryOI.getPrimitiveWritableObject(deferredObjects[1]);
+            BytesWritable trajB=queryOI.getPrimitiveWritableObject(deferredObjects[1].get());
             PointST[] trajectory =SerDerUtil.trajectory_deserialize(trajB.getBytes());
 
             boolean bool=false;
@@ -114,10 +114,10 @@ public class ST_Intersects3DBinary extends GenericUDF {
 
         } catch (ClassCastException e) {
            try {
-               BytesWritable query=box.getPrimitiveWritableObject(deferredObjects[0]);
+               BytesWritable query=box.getPrimitiveWritableObject(deferredObjects[0].get());
                EnvelopeST queryMBB=SerDerUtil.mbb_deserialize(query.getBytes());
 
-               BytesWritable mbb_bytes=queryOI.getPrimitiveWritableObject(deferredObjects[1]);
+               BytesWritable mbb_bytes=queryOI.getPrimitiveWritableObject(deferredObjects[1].get());
                EnvelopeST mbb=SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
 
                return new BooleanWritable(queryMBB.intersects(mbb));

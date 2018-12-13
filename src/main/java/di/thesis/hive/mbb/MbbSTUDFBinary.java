@@ -98,7 +98,7 @@ public class MbbSTUDFBinary extends GenericUDF {
     private Object Mbb_definiton(DeferredObject[] deferredObjects) {
         try {
 
-            BytesWritable query=traj.getPrimitiveWritableObject(deferredObjects[0]);
+            BytesWritable query=traj.getPrimitiveWritableObject(deferredObjects[0].get());
             PointST[] trajectory=SerDerUtil.trajectory_deserialize(query.getBytes());
 
             int last = trajectory.length-1;

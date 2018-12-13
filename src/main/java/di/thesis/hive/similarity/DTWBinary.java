@@ -91,10 +91,10 @@ public class DTWBinary extends GenericUDF {
      //   Object trajA=deferredObjects[0].get();
      //   Object trajB=deferredObjects[1].get();
 
-        BytesWritable trajBinaryA=trajA.getPrimitiveWritableObject(deferredObjects[0]);
+        BytesWritable trajBinaryA=trajA.getPrimitiveWritableObject(deferredObjects[0].get());
         PointST[] trajectoryA= SerDerUtil.trajectory_deserialize(trajBinaryA.getBytes());
 
-        BytesWritable trajBinaryB=trajB.getPrimitiveWritableObject(deferredObjects[1]);
+        BytesWritable trajBinaryB=trajB.getPrimitiveWritableObject(deferredObjects[1].get());
         PointST[] trajectoryB= SerDerUtil.trajectory_deserialize(trajBinaryB.getBytes());
 
 
