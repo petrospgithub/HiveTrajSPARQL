@@ -3,6 +3,7 @@ package di.thesis.hive.stoperations;
 import di.thesis.hive.test.LoggerPolygon;
 import di.thesis.indexing.spatiotemporaljts.STRtree3D;
 import di.thesis.indexing.types.EnvelopeST;
+import di.thesis.indexing.types.PointST;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
@@ -11,14 +12,12 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
+import scala.Tuple2;
 import utils.SerDerUtil;
-import utils.checking;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInput;
@@ -26,16 +25,13 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IndexIntersects3DBinary extends GenericUDTF {
+public class IndexIntersectsTraj extends GenericUDTF {
 
     private static final Log LOG = LogFactory.getLog(LoggerPolygon.class.getName());
 
+    private BinaryObjectInspector queryOI = null;
 
-   // private SettableStructObjectInspector queryIO=null;
-    private BinaryObjectInspector queryOI=null;
-
-
-    private BinaryObjectInspector treeOI=null;
+    private BinaryObjectInspector treeOI = null;
 
     private HiveDecimalObjectInspector minx_tolerance;
     private HiveDecimalObjectInspector maxx_tolerance;
@@ -51,7 +47,7 @@ public class IndexIntersects3DBinary extends GenericUDTF {
     @Override
     public StructObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
 
-        if (objectInspectors.length!=8)
+        if (objectInspectors.length != 8)
             throw new UDFArgumentLengthException("ST_IndexIntersects only takes 8 arguments!");
 
         try {
@@ -77,16 +73,13 @@ public class IndexIntersects3DBinary extends GenericUDTF {
             mint_tolerance = (IntObjectInspector) mintOI;
             maxt_tolerance = (IntObjectInspector) maxtOI;
 
-            // partidOI=(WritableLongObjectInspector)objectInspectors[8];
-
 
             ArrayList<String> fieldNames = new ArrayList<String>();
             ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-            // fieldNames.add("pid");
             fieldNames.add("trajectory_id");
-            //fieldOIs.add(PrimitiveObjectInspectorFactory.javaLongObjectInspector);
-            // fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
             fieldOIs.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+            fieldNames.add("trajectory");
+            fieldOIs.add(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector);
 
             return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames,
                     fieldOIs);
@@ -97,20 +90,12 @@ public class IndexIntersects3DBinary extends GenericUDTF {
 
     }
 
-    private transient final Object[] forwardMapObj = new Object[1];
+    private transient final Object[] forwardMapObj = new Object[2];
 
     @Override
     public void process(Object[] objects) throws HiveException {
 
-        // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " +  objects[1].getClass().getCanonicalName() );
-
-        BytesWritable tree=treeOI.getPrimitiveWritableObject(objects[1]);
-
-        //  long pid=partidOI.get(objects[8]);
-
-        //byte[] tree=(byte[])objects[1];
-
-        //ArrayList<LongWritable> result = new ArrayList<>();
+        BytesWritable tree = treeOI.getPrimitiveWritableObject(objects[1]);
 
         try {
 
@@ -127,36 +112,28 @@ public class IndexIntersects3DBinary extends GenericUDTF {
                     max_ext_lon < 0 || min_ext_lat < 0 || max_ext_lat < 0 || min_ext_ts < 0 || max_ext_ts < 0) {
                 throw new RuntimeException("Extend parameters must be posititve!");
             }
-/*
-            double mbb1_minlon = ((double) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("minx"))));
-            double mbb1_maxlon = ((double) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("maxx"))));
 
-            double mbb1_minlat = ((double) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("miny"))));
-            double mbb1_maxlat = ((double) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("maxy"))));
-
-            long mbb1_mints = ((long) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("mint"))));
-            long mbb1_maxts = ((long) (queryIO.getStructFieldData(objects[0], queryIO.getStructFieldRef("maxt"))));
-*/
-
-
-            BytesWritable mbb_bytes=queryOI.getPrimitiveWritableObject(objects[0]);
-            EnvelopeST mbb= SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
+            BytesWritable mbb_bytes = queryOI.getPrimitiveWritableObject(objects[0]);
+            EnvelopeST mbb = SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
 
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
             ObjectInput in = new ObjectInputStream(bis);
-            STRtree3D retrievedObject = (STRtree3D)in.readObject();
+            STRtree3D retrievedObject = (STRtree3D) in.readObject();
 
             mbb.expandBy(min_ext_lon, min_ext_lat);
 
-            mbb.setMinT(mbb.getMinT()-min_ext_ts);
-            mbb.setMaxT(mbb.getMaxT()-max_ext_ts);
+            mbb.setMinT(mbb.getMinT() - min_ext_ts);
+            mbb.setMaxT(mbb.getMaxT() - max_ext_ts);
 
-            List tree_results = retrievedObject.queryID(mbb);
+            List<Tuple2<Long, PointST[]>> tree_results = retrievedObject.queryIDTrajectory(mbb);
 
             for (int i = 0; i < tree_results.size(); i++) {
-                Long entry = (Long) tree_results.get(i);
-                // forwardMapObj[0]=new LongWritable(pid);
+                Long entry = tree_results.get(i)._1;
+                PointST[] trajb = tree_results.get(i)._2();
+
                 forwardMapObj[0] = new LongWritable(entry);
+                forwardMapObj[1] = new BytesWritable(SerDerUtil.trajectory_serialize(trajb));
+
                 forward(forwardMapObj);
             }
         } catch (Exception e) {

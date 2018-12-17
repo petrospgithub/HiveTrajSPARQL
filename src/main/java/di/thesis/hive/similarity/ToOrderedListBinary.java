@@ -231,8 +231,27 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 outputOI = internalMergeOI(valueOI, keyOI);
             } else {// terminate
 
+
+                List<String> fieldNames = new ArrayList<String>();
+                List<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
+
+                fieldNames.add("distances");
+                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector));
+                fieldNames.add("rowid");
+                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableLongObjectInspector));
+
+                // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
+                fieldNames.add("traja");
+                fieldOIs.add(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector);
+
+                fieldNames.add("trajb");
+                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
+
+
+                outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
+
                 //outputOI = ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.javaStringObjectInspector);
-                outputOI= PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+               // outputOI= PrimitiveObjectInspectorFactory.writableStringObjectInspector;
             }
 
             return outputOI;
@@ -257,9 +276,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
             fieldNames.add("traja");
-            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector()));
+          //  fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector()));
 
-            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
+            fieldOIs.add(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector);
 
 
             fieldNames.add("trajb");
@@ -320,7 +339,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 throws HiveException {
             QueueAggregationBuffer myagg = (QueueAggregationBuffer) agg;
 
-            Tuple4<List<Object>,List<Object>,List<Object>,List<Object>> tuples = myagg.drainQueue();
+            Tuple4<List<Object>,List<Object>,Object,List<Object>> tuples = myagg.drainQueue();
 
             if (tuples == null) {
                 return null;
@@ -391,9 +410,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             //   LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ checkB " + internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("trajb")));
 
             SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
-            ListObjectInspector trajListOI=ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector());
+            ListObjectInspector trajListOI=ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector);
 
-
+/*
             Object trajAListObj = internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja"));
 
             final List<?> trajAListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajAListObj));
@@ -403,6 +422,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 trajAList.add(ObjectInspectorUtils.copyToStandardObject(trajAListRaw.get(i),
                         PrimitiveObjectInspectorFactory.writableBinaryObjectInspector)); // TODO check!!!
             }
+*/
+
+            Object trajAListObj = internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja"));
 
 
             Object trajBListObj = internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("trajb"));
@@ -415,21 +437,26 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                         PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
             }
 
-            myagg.merge(keyList, valueList, trajAList, trajBList);
+            myagg.merge(keyList, valueList, trajAListObj, trajBList);
         }
 
         @Override
         public String terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
-            Tuple4<List<Object>,List<Object>,List<Object>,List<Object>>tuples = myagg.drainQueue();
+            Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
             if (tuples == null) {
                 return null;
             }
 
             // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ tuples " + tuples );
+            Object[] obj=new Object[4];
 
 
+            obj[0]=tuples._1();
+            obj[1]=tuples._2();
+            obj[2]=tuples._3();
+            obj[3]=tuples._4();
 
             return tuples.toString();
         }
@@ -463,7 +490,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 queueHandler.offer(tuple);
             }
 
-            void merge(@Nonnull List<Object> o_keyList, @Nonnull List<Object> o_valueList, List<Object> o_trajA, List<Object> o_trajB) { //TODO CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            void merge(@Nonnull List<Object> o_keyList, @Nonnull List<Object> o_valueList, Object o_trajA, List<Object> o_trajB) { //TODO CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 if (queueHandler == null) {
                     initQueueHandler();
                 }
@@ -473,7 +500,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             }
 
             @Nullable
-            Tuple4<List<Object>,List<Object>,List<Object>,List<Object>> drainQueue() {
+            Tuple4<List<Object>,List<Object>,Object,List<Object>> drainQueue() {
                 if (queueHandler == null) {
                     return null;
                 }
@@ -482,7 +509,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 final Object[] keys = new Object[n];
                 final Object[] values = new Object[n];
                 //   final Object[] rowA = new Object[n];
-                final Object[] trajA = new Object[n];
+                Object trajA = null;
                 final Object[] trajB = new Object[n];
 
                 for (int i = n - 1; i >= 0; i--) { // head element in queue should be stored to tail of array
@@ -498,14 +525,14 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                     keys[i] = tuple.getKey();
                     values[i] = tuple.getValue();
                     //     rowA[i]=tuple.getRowA();
-                    trajA[i]=tuple.getTrajA();
+                    trajA=tuple.getTrajA();
                     trajB[i]=tuple.getTrajB();
 
                 }
 
                 queueHandler.clear();
 
-                Tuple4<List<Object>,List<Object>,List<Object>,List<Object>> tuple4=new Tuple4<List<Object>,List<Object>,List<Object>,List<Object>>(Arrays.asList(keys), Arrays.asList(values), Arrays.asList(trajA), Arrays.asList(trajB));
+                Tuple4<List<Object>,List<Object>,Object,List<Object>> tuple4=new Tuple4<List<Object>,List<Object>,Object,List<Object>>(Arrays.asList(keys), Arrays.asList(values), trajA, Arrays.asList(trajB));
 
                 return tuple4;
             }

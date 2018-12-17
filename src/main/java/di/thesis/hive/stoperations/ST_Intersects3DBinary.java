@@ -98,6 +98,11 @@ public class ST_Intersects3DBinary extends GenericUDF {
             BytesWritable query=box.getPrimitiveWritableObject(deferredObjects[0].get());
             EnvelopeST mbb=SerDerUtil.mbb_deserialize(query.getBytes());
 
+            mbb.expandBy(min_ext_lon, min_ext_lat);
+
+            mbb.setMinT(mbb.getMinT()-min_ext_ts);
+            mbb.setMaxT(mbb.getMaxT()-max_ext_ts);
+
             BytesWritable trajB=queryOI.getPrimitiveWritableObject(deferredObjects[1].get());
             PointST[] trajectory =SerDerUtil.trajectory_deserialize(trajB.getBytes());
 
@@ -116,6 +121,11 @@ public class ST_Intersects3DBinary extends GenericUDF {
            try {
                BytesWritable query=box.getPrimitiveWritableObject(deferredObjects[0].get());
                EnvelopeST queryMBB=SerDerUtil.mbb_deserialize(query.getBytes());
+
+               queryMBB.expandBy(min_ext_lon, min_ext_lat);
+
+               queryMBB.setMinT(queryMBB.getMinT()-min_ext_ts);
+               queryMBB.setMaxT(queryMBB.getMaxT()-max_ext_ts);
 
                BytesWritable mbb_bytes=queryOI.getPrimitiveWritableObject(deferredObjects[1].get());
                EnvelopeST mbb=SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
