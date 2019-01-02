@@ -529,7 +529,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             obj[2]=temp_trajA;
 
 
-            ArrayList tempB_result=(ArrayList)tuples._4();
+            List tempB_result=tuples._4();
 
             Object[] temp_trajB= new Object[tempB_result.size()];
 
