@@ -544,7 +544,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             Object[] trajB_ret= new Object[tempB_result.size()];
 
             for (int i=0; i<tempB_result.size(); i++) {
-                trajB_ret[i]= ((ArrayList)(tempB_result.get(0))).get(i);
+                trajB_ret[i]= tempB_result.get(i);
             }
 
             obj[3]=trajB_ret;
