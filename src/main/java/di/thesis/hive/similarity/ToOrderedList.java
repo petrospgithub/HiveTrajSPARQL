@@ -365,7 +365,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 throws HiveException {
             QueueAggregationBuffer myagg = (QueueAggregationBuffer) agg;
 
-            Tuple4<List<Object>,List<Object>,Object,List<Object>> tuples = myagg.drainQueue();
+            Tuple4<List<Object>,List<Object>,Object,Object[]> tuples = myagg.drainQueue();
 
             if (tuples == null) {
                 return null;
@@ -492,7 +492,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
         public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
-            Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
+            Tuple4<List<Object>,List<Object>,Object,Object[]>tuples = myagg.drainQueue();
             if (tuples == null) {
                 return null;
             }
@@ -529,7 +529,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             obj[2]=temp_trajA;
 
-            List tempB_result=tuples._4();
+            Object[] tempB_result=tuples._4();
 
             //                       "longitute: "+((Object [])((Object[])((ArrayList)tempB_result.get(0)).get(0))[0])[0]
             //                       "point: "+(Object[])((ArrayList)tempB_result.get(0)).get(0))[0]
@@ -537,10 +537,8 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             if (true)
                 throw new HiveException(
 
-                        "elemengt length (number of trajectories): "+ tempB_result.size() +"\n"+
-                                "get first trajectory length from knn "+ ((ArrayList)tempB_result.get(0)).size() +"\n"+
-                        "from first trajectory get first point (must be 3)  "+ ( (Object[]) ((ArrayList)tempB_result.get(0)).get(0) ).length
-
+                        "elemengt length (number of trajectories): "+ tempB_result.length +"\n"+
+                                "get first trajectory length from knn "+ ((Object [])tempB_result[0]).length +"\n"
                 );
 
             return obj;
@@ -587,7 +585,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             }
 
             @Nullable
-            Tuple4<List<Object>,List<Object>,Object,List<Object>> drainQueue() {
+            Tuple4<List<Object>,List<Object>,Object,Object[]> drainQueue() {
                 if (queueHandler == null) {
                     return null;
                 }
@@ -619,7 +617,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
                 queueHandler.clear();
 
-                Tuple4<List<Object>,List<Object>,Object,List<Object>> tuple4=new Tuple4<List<Object>,List<Object>,Object,List<Object>>(Arrays.asList(keys), Arrays.asList(values), trajA, Arrays.asList(trajB));
+                Tuple4<List<Object>,List<Object>,Object,Object[]> tuple4=new Tuple4<List<Object>,List<Object>,Object,Object[]>(Arrays.asList(keys), Arrays.asList(values), trajA, trajB);
 
                 return tuple4;
             }
