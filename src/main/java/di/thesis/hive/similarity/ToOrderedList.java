@@ -364,7 +364,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 return;
             }
             final Object value = ObjectInspectorUtils.copyToStandardObject(parameters[0], valueOI);
-            final Object key = ObjectInspectorUtils.copyToStandardObject(parameters[1], valueOI);
+            final Object key = ObjectInspectorUtils.copyToStandardObject(parameters[1], keyOI);
 
             // final Object key;
 /*
