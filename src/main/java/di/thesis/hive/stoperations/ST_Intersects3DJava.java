@@ -171,7 +171,7 @@ public class ST_Intersects3DJava extends GenericUDF {
             double mbb1_maxlat=  ((double)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxy")))) + max_ext_lat;
 
             long mbb1_mints=  ((long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("mint")))) - min_ext_ts;
-            long mbb1_maxts=  ((long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxt")))) - max_ext_ts;
+            long mbb1_maxts=  ((long)(mbb1.getStructFieldData(deferredObjects[0].get(), mbb1.getStructFieldRef("maxt")))) + max_ext_ts;
 
 
             double mbb2_minlon=  ((double)(mbb2.getStructFieldData(deferredObjects[1].get(), mbb2.getStructFieldRef("minx"))));
@@ -208,7 +208,7 @@ public class ST_Intersects3DJava extends GenericUDF {
             double mbb1_maxlat=  ((double)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxy")))) + max_ext_lat;
 
             long mbb1_mints=  ((long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("mint")))) - min_ext_ts;
-            long mbb1_maxts=  ((long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt")))) - max_ext_ts;
+            long mbb1_maxts=  ((long)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt")))) + max_ext_ts;
             /*mbb1*/
 
             int trajectory_length=listOI.getListLength(deferredObjects_trajectory.get());

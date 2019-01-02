@@ -20,6 +20,7 @@ import scala.Tuple2;
 import utils.SerDerUtil;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class IndexIntersectsTraj extends GenericUDTF {
 
         BytesWritable tree = treeOI.getPrimitiveWritableObject(objects[1]);
 
-        try {
+//        try {
 
             double min_ext_lon = minx_tolerance.getPrimitiveJavaObject(objects[2]).doubleValue();
             double max_ext_lon = maxx_tolerance.getPrimitiveJavaObject(objects[3]).doubleValue();
@@ -117,13 +118,20 @@ public class IndexIntersectsTraj extends GenericUDTF {
             EnvelopeST mbb = SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
 
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
-            ObjectInput in = new ObjectInputStream(bis);
-            STRtree3D retrievedObject = (STRtree3D) in.readObject();
+        ObjectInput in = null;
+        STRtree3D retrievedObject = null;
 
-            mbb.expandBy(min_ext_lon, min_ext_lat);
+        try {
+            in = new ObjectInputStream(bis);
+            retrievedObject = (STRtree3D) in.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+
+        mbb.expandBy(min_ext_lon, min_ext_lat);
 
             mbb.setMinT(mbb.getMinT() - min_ext_ts);
-            mbb.setMaxT(mbb.getMaxT() - max_ext_ts);
+            mbb.setMaxT(mbb.getMaxT() + max_ext_ts);
 
             List<Tuple2<Long, PointST[]>> tree_results = retrievedObject.queryIDTrajectory(mbb);
 
@@ -136,9 +144,11 @@ public class IndexIntersectsTraj extends GenericUDTF {
 
                 forward(forwardMapObj);
             }
+  /*
         } catch (Exception e) {
             throw new HiveException(e);
         }
+    */
     }
 
     @Override

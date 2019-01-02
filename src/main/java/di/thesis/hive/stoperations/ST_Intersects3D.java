@@ -209,7 +209,7 @@ public class ST_Intersects3D extends GenericUDF{
             double mbb1_maxlat=  ((DoubleWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxy")))).get() + max_ext_lat;
 
             long mbb1_mints=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("mint")))).get() - min_ext_ts;
-            long mbb1_maxts=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt")))).get() - max_ext_ts;
+            long mbb1_maxts=  ((LongWritable)(mbb1.getStructFieldData(deferredObjects_mbb.get(), mbb1.getStructFieldRef("maxt")))).get() + max_ext_ts;
             /*mbb1*/
 
             int trajectory_length=listOI.getListLength(deferredObjects_trajectory.get());

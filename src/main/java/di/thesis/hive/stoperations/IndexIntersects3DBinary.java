@@ -149,7 +149,7 @@ public class IndexIntersects3DBinary extends GenericUDTF {
             mbb.expandBy(min_ext_lon, min_ext_lat);
 
             mbb.setMinT(mbb.getMinT()-min_ext_ts);
-            mbb.setMaxT(mbb.getMaxT()-max_ext_ts);
+            mbb.setMaxT(mbb.getMaxT()+max_ext_ts);
 
             List tree_results = retrievedObject.queryID(mbb);
 

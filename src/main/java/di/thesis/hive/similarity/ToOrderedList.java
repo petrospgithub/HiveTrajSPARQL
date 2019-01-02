@@ -1,6 +1,7 @@
 package di.thesis.hive.similarity;
 
 import di.thesis.hive.utils.SpatioTemporalObjectInspector;
+import di.thesis.indexing.types.PointST;
 import hivemall.utils.collections.BoundedPriorityQueue;
 import hivemall.utils.hadoop.HiveUtils;
 import hivemall.utils.lang.CommandLineUtils;
@@ -35,12 +36,12 @@ import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFParameterInfo;
+import org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryArray;
+import org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryStruct;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
-import org.apache.hadoop.io.BooleanWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.*;
 import scala.Tuple4;
 
 /**
@@ -428,43 +429,66 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             myagg.setOptions(size, reverseOrder);
 
-            //       LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ check " + this.internalMergeOI.getAllStructFieldRefs());
+            final List<?> trajAListObj = ((LazyBinaryArray) internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja"))).getList();
+            final List<?> trajBListObj = ((LazyBinaryArray) internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("trajb"))).getList();
 
-            //  LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ checkA " + internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja")));
-            //   LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ checkB " + internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("trajb")));
-
-            SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
-            ListObjectInspector trajListOI=ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector());
-
-/*
-            Object trajAListObj = internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja"));
-
-            final List<?> trajAListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajAListObj));
             final List<Object> trajAList = new ArrayList<Object>();
 
-            for (int i = 0, n = trajAListRaw.size(); i < n; i++) {
-                trajAList.add(ObjectInspectorUtils.copyToStandardObject(trajAListRaw.get(i),
-                        trajOI.TrajectoryObjectInspector()));
+            for (int i = 0, n = trajAListObj.size(); i < n; i++) {
+                /*
+                trajAList.add(new PointST( ((DoubleWritable)((LazyBinaryStruct)trajAListObj.get(i)).getField(0)).get(),
+                        ((DoubleWritable)((LazyBinaryStruct)trajAListObj.get(i)).getField(1)).get(),
+                        ((LongWritable)((LazyBinaryStruct)trajAListObj.get(i)).getField(2)).get() )
+                );
+                */
+                //trajAList.add( ((LazyBinaryStruct)trajAListObj.get(i)).getObject() );
+
+                Object[] p = new Object[3];
+
+                p[0]=((LazyBinaryStruct)trajAListObj.get(i)).getField(0);
+                p[1]=((LazyBinaryStruct)trajAListObj.get(i)).getField(1);
+                p[2]=((LazyBinaryStruct)trajAListObj.get(i)).getField(2);
+
+                trajAList.add(p);
+
             }
-*/
-            Object trajAListObj = internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja"));
 
-
-            Object trajBListObj = internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("trajb"));
-
-            final List<?> trajBListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajBListObj));
             final List<Object> trajBList = new ArrayList<Object>();
 
-            for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
-                trajBList.add(ObjectInspectorUtils.copyToStandardObject(trajBListRaw.get(i),
-                        trajOI.TrajectoryObjectInspector()));
+            for (int i = 0, n = trajBListObj.size(); i < n; i++) {
+
+                List<?> temp=((LazyBinaryArray)trajBListObj.get(i)).getList();
+                //final List<Object> trajBList_temp = new ArrayList<Object>();
+
+                Object[] trajBList_temp=new Object[temp.size()];
+
+                for (int j = 0, m = temp.size(); j < m; j++) {
+                    /*
+                    trajBList_temp.add(new PointST( ((DoubleWritable)((LazyBinaryStruct)temp.get(i)).getField(0)).get(),
+                            ((DoubleWritable)((LazyBinaryStruct)temp.get(i)).getField(1)).get(),
+                            ((LongWritable)((LazyBinaryStruct)temp.get(i)).getField(2)).get() )
+                    );
+                    */
+                    Object[] pB = new Object[3];
+
+                    pB[0]=((LazyBinaryStruct)temp.get(j)).getField(0);
+                    pB[1]=((LazyBinaryStruct)temp.get(j)).getField(1);
+                    pB[2]=((LazyBinaryStruct)temp.get(j)).getField(2);
+
+                    trajBList_temp[j]=pB;
+                }
+
+                trajBList.add(trajBList_temp);
+
             }
 
-            myagg.merge(keyList, valueList, trajAListObj, trajBList);
+            myagg.merge(keyList, valueList, trajAList, trajBList);
+
+
         }
 
         @Override
-        public String terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
+        public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
@@ -478,13 +502,15 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             obj[0]=tuples._1();
             obj[1]=tuples._2();
-            obj[2]=tuples._3();
-            obj[3]=tuples._4();
+            obj[2]=((ArrayList)tuples._3()).toArray();
+            obj[3]=((ArrayList)tuples._4()).toArray();
+
             // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ tuples " + tuples );
 
 
+            return obj;
 
-            return tuples.toString();
+           // return tuples.toString();
         }
 
         static class QueueAggregationBuffer extends AbstractAggregationBuffer {
