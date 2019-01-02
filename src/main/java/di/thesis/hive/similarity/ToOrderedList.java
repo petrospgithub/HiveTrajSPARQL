@@ -287,10 +287,10 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
                 // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
                 fieldNames.add("traja");
-                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(si));
+                fieldOIs.add(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
 
                 fieldNames.add("trajb");
-                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(ObjectInspectorFactory.getStandardListObjectInspector(si)));
+                fieldOIs.add(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
 
 
                // outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
@@ -517,7 +517,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
         }
 
         @Override
-        public Text terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
+        public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
@@ -525,12 +525,16 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 return null;
             }
 
-/*
+
             Object[] obj=new Object[4];
 
 
             obj[0]=tuples._1();
             obj[1]=tuples._2();
+            obj[2]=tuples._3().toString();
+            obj[3]=tuples._4().toString();
+
+            /*
             obj[2]=((ArrayList)tuples._3()).toArray();
             //
 
@@ -542,10 +546,10 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ tuples " + tuples );
             obj[3]=temp;
-
-            return obj;
 */
-           return new Text(tuples.toString());
+            return obj;
+
+           //return new Text(tuples.toString());
         }
 
         static class QueueAggregationBuffer extends AbstractAggregationBuffer {
