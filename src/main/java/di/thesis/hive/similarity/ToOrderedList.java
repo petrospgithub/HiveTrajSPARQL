@@ -261,10 +261,11 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 List<String> fieldNames = new ArrayList<String>();
                 List<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
 
-                fieldNames.add("distances");
-                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector));
                 fieldNames.add("rowid");
                 fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableLongObjectInspector));
+
+                fieldNames.add("distances");
+                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector));
 
                 SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
 
