@@ -293,10 +293,10 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 fieldOIs.add(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
 
 
-               // outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
+                outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
 
                 //outputOI = ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.javaStringObjectInspector);
-                outputOI=PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+               // outputOI=PrimitiveObjectInspectorFactory.writableStringObjectInspector;
             }
 
             return outputOI;
