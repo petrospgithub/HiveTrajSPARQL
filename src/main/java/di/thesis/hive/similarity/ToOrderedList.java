@@ -70,7 +70,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             throws SemanticException {
         //   @SuppressWarnings("deprecation")
 
-                /*
+
         TypeInfo[] typeInfo = info.getParameters();
         ObjectInspector[] argOIs = info.getParameterObjectInspectors();
         if ((typeInfo.length == 1) || (typeInfo.length == 2 && HiveUtils.isConstString(argOIs[1]))) {
@@ -96,7 +96,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                     "Number of arguments must be in [1, 3] including constant string for options: "
                             + typeInfo.length);
         }
-        */
+
         return new ToOrderedList.UDAFToOrderedListEvaluator();
     }
 
@@ -171,13 +171,9 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             int k = 0;
             boolean reverseOrder = false;
             if (argOIs.length >= optionIndex + 1) {
-                // String rawArgs = HiveUtils.getConstString(argOIs[optionIndex]);
 
-                //LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ optionIndex: "+optionIndex);
-                //LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ optionIndex: "+argOIs[optionIndex].getTypeName());
+                String rawArgs = HiveUtils.getConstString(argOIs[optionIndex]);
 
-                //JavaStringObjectInspector constOI = (JavaStringObjectInspector) argOIs[optionIndex];
-                String rawArgs =  "-k -2";//constOI.getPrimitiveJavaObject();
                 cl = parseOptions(rawArgs);
 
                 reverseOrder = cl.hasOption("reverse_order");

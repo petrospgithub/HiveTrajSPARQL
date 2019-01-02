@@ -1,30 +1,19 @@
 package di.thesis.hive.similarity;
 
 import di.thesis.indexing.distance.DTW;
-import di.thesis.indexing.distance.PointDistance;
-import di.thesis.indexing.distance.PointManhattan;
-import di.thesis.indexing.distance.Pointeuclidean;
-import di.thesis.indexing.distance.Pointhaversine;
 import di.thesis.indexing.types.PointST;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
-import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
 import utils.SerDerUtil;
-import utils.checking;
-
-import java.util.Objects;
 
 public class DTWBinary extends GenericUDF {
 /*
@@ -98,9 +87,9 @@ public class DTWBinary extends GenericUDF {
         PointST[] trajectoryB= SerDerUtil.trajectory_deserialize(trajBinaryB.getBytes());
 
 
-        int trajectoryA_length=trajectoryA.length;
+    //    int trajectoryA_length=trajectoryA.length;
 
-        int trajectoryB_length=trajectoryB.length;
+    //    int trajectoryB_length=trajectoryB.length;
 
         int w=fast.get(deferredObjects[2].get());
 

@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
@@ -31,6 +32,7 @@ import javax.annotation.Nullable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 
 public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
@@ -42,7 +44,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             throws SemanticException {
         //   @SuppressWarnings("deprecation")
 
-                /*
+
         TypeInfo[] typeInfo = info.getParameters();
         ObjectInspector[] argOIs = info.getParameterObjectInspectors();
         if ((typeInfo.length == 1) || (typeInfo.length == 2 && HiveUtils.isConstString(argOIs[1]))) {
@@ -68,7 +70,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                     "Number of arguments must be in [1, 3] including constant string for options: "
                             + typeInfo.length);
         }
-        */
+
         return new ToOrderedListBinary.UDAFToOrderedListEvaluator();
     }
 
@@ -143,13 +145,8 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             int k = 0;
             boolean reverseOrder = false;
             if (argOIs.length >= optionIndex + 1) {
-                // String rawArgs = HiveUtils.getConstString(argOIs[optionIndex]);
+                String rawArgs = HiveUtils.getConstString(argOIs[optionIndex]);
 
-                //LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ optionIndex: "+optionIndex);
-                //LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ optionIndex: "+argOIs[optionIndex].getTypeName());
-
-                //JavaStringObjectInspector constOI = (JavaStringObjectInspector) argOIs[optionIndex];
-                String rawArgs =  "-k -2";//constOI.getPrimitiveJavaObject();
                 cl = parseOptions(rawArgs);
 
                 reverseOrder = cl.hasOption("reverse_order");
@@ -310,7 +307,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 return;
             }
             final Object value = ObjectInspectorUtils.copyToStandardObject(parameters[0], valueOI);
-            final Object key = ObjectInspectorUtils.copyToStandardObject(parameters[1], valueOI);
+            final Object key = ObjectInspectorUtils.copyToStandardObject(parameters[1], keyOI);
 
             // final Object key;
 /*
@@ -409,7 +406,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             //  LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ checkA " + internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("traja")));
             //   LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ checkB " + internalMergeOI.getStructFieldData(partial, this.internalMergeOI.getStructFieldRef("trajb")));
 
-            SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
+        //    SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
             ListObjectInspector trajListOI=ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableBinaryObjectInspector);
 
 /*
