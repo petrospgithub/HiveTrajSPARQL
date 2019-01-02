@@ -531,11 +531,6 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             List tempB_result=tuples._4();
 
-            if (true) {
-                throw new HiveException("~~~~~~~~~~~~~~~~~~foo: "+tempB_result.size());
-            }
-
-
             Object[] temp_trajB= new Object[tempB_result.size()];
 
             for (int i=0; i<tempB_result.size(); i++) {
@@ -552,7 +547,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                    // if (true)
                      //   throw new HiveException("~~~~~~~~~~~~~~~foo: "+ length );
 
-                    trjB_arr[i]=((Object [])curr_TrajList.get(j));
+                    trjB_arr[j]=((Object [])curr_TrajList.get(j));
                 }
 /****/
                 temp_trajB[i]=trjB_arr;
