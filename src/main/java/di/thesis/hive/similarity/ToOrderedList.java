@@ -269,19 +269,11 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
                 SpatioTemporalObjectInspector stOI=new SpatioTemporalObjectInspector();
 
-                // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
-              //  fieldNames.add("traja");
-               // fieldOIs.add(stOI.TrajectoryObjectInspector());
-
-              //  fieldNames.add("trajb");
-               // fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(stOI.TrajectoryObjectInspector()));
-
-                // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
                 fieldNames.add("traja");
-                fieldOIs.add(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
+                fieldOIs.add(stOI.TrajectoryObjectInspector());
 
                 fieldNames.add("trajb");
-                fieldOIs.add(PrimitiveObjectInspectorFactory.writableStringObjectInspector);
+                fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(stOI.TrajectoryObjectInspector()));
 
 
                 outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
@@ -510,12 +502,12 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             obj[0]=tuples._1();
             obj[1]=tuples._2();
-            obj[2]=new Text(tuples._3().toString());
-            obj[3]=new Text(tuples._4().toString());
+          //  obj[2]=new Text(tuples._3().toString());
+         //   obj[3]=new Text(tuples._4().toString());
 
-            /*
+        //    /
             obj[2]=((ArrayList)tuples._3()).toArray();
-            //
+
 
             Object[] temp= new Object[tuples._4().size()];
 
@@ -525,7 +517,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ tuples " + tuples );
             obj[3]=temp;
-*/
+
             return obj;
 
            //return new Text(tuples.toString());
