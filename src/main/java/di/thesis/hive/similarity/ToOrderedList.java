@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
+import org.apache.hadoop.hive.ql.metadata.Hive;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
@@ -528,8 +529,12 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             obj[2]=temp_trajA;
 
-
             List tempB_result=tuples._4();
+
+            if (true) {
+                throw new HiveException("~~~~~~~~~~~~~~~~~~foo: "+tempB_result.size());
+            }
+
 
             Object[] temp_trajB= new Object[tempB_result.size()];
 
