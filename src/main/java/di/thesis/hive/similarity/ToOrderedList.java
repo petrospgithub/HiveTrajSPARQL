@@ -541,7 +541,8 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
                 for (int j=0; j<trjB_arr.length; j++) {
 
-                    throw new HiveException(curr_TrajList.get(j).getClass().getName());
+                    if (true)
+                        throw new HiveException(curr_TrajList.get(j).getClass().getName());
 
                     trjB_arr[i]=curr_TrajList.get(j);
                 }
