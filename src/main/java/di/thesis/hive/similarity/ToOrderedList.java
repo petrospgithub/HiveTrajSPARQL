@@ -531,11 +531,16 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             List tempB_result=tuples._4();
 
+            //                       "longitute: "+((Object [])((Object[])((ArrayList)tempB_result.get(0)).get(0))[0])[0]
+            //                       "point: "+(Object[])((ArrayList)tempB_result.get(0)).get(0))[0]
+
             if (true)
-                throw new HiveException("longitute: "+((Object[])((ArrayList)tempB_result.get(0)).get(0))[0] + "\n"
-                        + "latitude: "+((Object[])((ArrayList)tempB_result.get(0)).get(0))[1] + "\n" +
-                        "timestamp: "+((Object[])((ArrayList)tempB_result.get(0)).get(0))[2] + "\n" +
-                       "last"+((Object [])((Object[])((ArrayList)tempB_result.get(0)).get(0))[0])[0]
+                throw new HiveException(
+
+                        "length1: "+ tempB_result.size() +"\n"+
+                                "length2: "+( (Object[]) ((ArrayList)tempB_result.get(0)).get(0) ).length +"\n"+
+                        "point: "+( (Object[])(((ArrayList)tempB_result.get(0)).get(0)) )[0] +"\n"+
+                                "longitute: "+((Object [])((Object[])((ArrayList)tempB_result.get(0)).get(0))[0])[0]
                 );
 
             return obj;
