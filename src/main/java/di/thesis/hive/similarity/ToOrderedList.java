@@ -267,24 +267,14 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 fieldNames.add("distances");
                 fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector));
 
-                SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
+                SpatioTemporalObjectInspector stOI=new SpatioTemporalObjectInspector();
 
                 // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
-                // fill struct field names
-                //longitude
-                ArrayList<String> structFieldNames = new ArrayList<String>();
-                ArrayList<ObjectInspector> structFieldObjectInspectors = new ArrayList<ObjectInspector>();
+              //  fieldNames.add("traja");
+               // fieldOIs.add(stOI.TrajectoryObjectInspector());
 
-                structFieldNames.add("longitude");
-                structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-                // latitude
-                structFieldNames.add("latitude");
-                structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-                structFieldNames.add("timestamp");
-                structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
-
-                StandardStructObjectInspector si = ObjectInspectorFactory.getStandardStructObjectInspector(structFieldNames,
-                        structFieldObjectInspectors);
+              //  fieldNames.add("trajb");
+               // fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(stOI.TrajectoryObjectInspector()));
 
                 // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
                 fieldNames.add("traja");
@@ -318,26 +308,14 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             fieldNames.add("reverseOrder");
             fieldOIs.add(PrimitiveObjectInspectorFactory.writableBooleanObjectInspector);
 
-            ArrayList<String> structFieldNames = new ArrayList<String>();
-            ArrayList<ObjectInspector> structFieldObjectInspectors = new ArrayList<ObjectInspector>();
-
-            structFieldNames.add("longitude");
-            structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-            // latitude
-            structFieldNames.add("latitude");
-            structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-            structFieldNames.add("timestamp");
-            structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
-
-            StandardStructObjectInspector si = ObjectInspectorFactory.getStandardStructObjectInspector(structFieldNames,
-                    structFieldObjectInspectors);
+           SpatioTemporalObjectInspector stOI=new SpatioTemporalObjectInspector();
 
             // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
             fieldNames.add("traja");
-            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(si));
+            fieldOIs.add(stOI.TrajectoryObjectInspector());
 
             fieldNames.add("trajb");
-            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(ObjectInspectorFactory.getStandardListObjectInspector(si)));
+            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(stOI.TrajectoryObjectInspector()));
 
 
             return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
@@ -532,8 +510,8 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             obj[0]=tuples._1();
             obj[1]=tuples._2();
-            obj[2]=tuples._3().toString();
-            obj[3]=tuples._4().toString();
+            obj[2]=new Text(tuples._3().toString());
+            obj[3]=new Text(tuples._4().toString());
 
             /*
             obj[2]=((ArrayList)tuples._3()).toArray();
