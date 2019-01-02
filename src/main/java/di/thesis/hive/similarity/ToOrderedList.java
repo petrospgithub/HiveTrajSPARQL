@@ -293,10 +293,10 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(ObjectInspectorFactory.getStandardListObjectInspector(si)));
 
 
-                outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
+               // outputOI=ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
 
                 //outputOI = ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.javaStringObjectInspector);
-                //outputOI=PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+                outputOI=PrimitiveObjectInspectorFactory.writableStringObjectInspector;
             }
 
             return outputOI;
@@ -517,7 +517,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
         }
 
         @Override
-        public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
+        public Text terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
@@ -525,7 +525,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 return null;
             }
 
-
+/*
             Object[] obj=new Object[4];
 
 
@@ -544,8 +544,8 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             obj[3]=temp;
 
             return obj;
-
-           // return tuples.toString();
+*/
+           return new Text(tuples.toString());
         }
 
         static class QueueAggregationBuffer extends AbstractAggregationBuffer {
