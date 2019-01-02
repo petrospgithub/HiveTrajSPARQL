@@ -536,9 +536,10 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             if (true)
                 throw new HiveException(
-
                         "elemengt length (number of trajectories): "+ tempB_result.length +"\n"+
-                                "get first trajectory length from knn "+ ((Object [])tempB_result[0]).length +"\n"
+                                "get first trajectory length from knn "+ ((ArrayList [])tempB_result[0]).length +"\n"+
+                                "must be 3 "+     ( (Object[]) ( (ArrayList)tempB_result[0]).get(0) ).length
+
                 );
 
             return obj;
