@@ -532,7 +532,7 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             List tempB_result=tuples._4();
 
             if (true)
-                throw new HiveException("foo:"+tempB_result.get(0)+"\n"+" foo (if equal 3):"+((Object[])tempB_result.get(0)).length +"\n"+ "longitute: "+((ArrayList)tempB_result.get(0)).get(0) );
+                throw new HiveException("foo:"+tempB_result.get(0)+"\n"+" foo (if equal 3):"+((ArrayList)tempB_result.get(0)).size() +"\n"+ "longitute: "+((ArrayList)tempB_result.get(0)).get(0) );
 
             return obj;
 
