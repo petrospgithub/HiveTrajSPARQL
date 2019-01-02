@@ -529,17 +529,25 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             obj[2]=temp_trajA;
 
-            Object[] tempB_result=tuples._4();
+            ArrayList tempB_result= ((ArrayList)tuples._4()[0]);
 
             //                       "longitute: "+((Object [])((Object[])((ArrayList)tempB_result.get(0)).get(0))[0])[0]
             //                       "point: "+(Object[])((ArrayList)tempB_result.get(0)).get(0))[0]
-
+/*
             if (true)
                 throw new HiveException(
                         "ALL: "+ tempB_result.length + "\n" +
                                 "get first trajectory "+     ( (Object[]) ( (ArrayList)tempB_result[0]).get(0) ).length  +"\n"+// ~> trajectory
                                         "get second trajectory "+     ( (Object[]) ( (ArrayList)tempB_result[0]).get(1) ).length  +"\n"
                 );
+*/
+            Object[] trajB_ret= new Object[tempB_result.size()];
+
+            for (int i=0; i<tempB_result.size(); i++) {
+                trajB_ret[i]= ((ArrayList)(tempB_result.get(0))).get(i);
+            }
+
+            obj[3]=trajB_ret;
 
             return obj;
 
