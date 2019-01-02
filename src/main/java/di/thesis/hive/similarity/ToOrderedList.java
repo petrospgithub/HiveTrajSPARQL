@@ -317,14 +317,26 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
             fieldNames.add("reverseOrder");
             fieldOIs.add(PrimitiveObjectInspectorFactory.writableBooleanObjectInspector);
 
-            SpatioTemporalObjectInspector trajOI=new SpatioTemporalObjectInspector();
+            ArrayList<String> structFieldNames = new ArrayList<String>();
+            ArrayList<ObjectInspector> structFieldObjectInspectors = new ArrayList<ObjectInspector>();
+
+            structFieldNames.add("longitude");
+            structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+            // latitude
+            structFieldNames.add("latitude");
+            structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+            structFieldNames.add("timestamp");
+            structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.writableLongObjectInspector);
+
+            StandardStructObjectInspector si = ObjectInspectorFactory.getStandardStructObjectInspector(structFieldNames,
+                    structFieldObjectInspectors);
 
             // LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  internalMergeOI" );
             fieldNames.add("traja");
-            fieldOIs.add(trajOI.TrajectoryObjectInspector());
+            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(si));
 
             fieldNames.add("trajb");
-            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(trajOI.TrajectoryObjectInspector()));
+            fieldOIs.add(ObjectInspectorFactory.getStandardListObjectInspector(ObjectInspectorFactory.getStandardListObjectInspector(si)));
 
 
             return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
