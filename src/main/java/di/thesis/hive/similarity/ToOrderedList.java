@@ -526,6 +526,8 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
                 temp[i]=((ArrayList)tuples._3()).get(i);
             }
 
+            obj[2]=temp;
+
             return obj;
 
            //return new Text(tuples.toString());
