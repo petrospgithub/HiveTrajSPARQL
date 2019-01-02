@@ -531,29 +531,8 @@ public final class ToOrderedList extends AbstractGenericUDAFResolver {
 
             List tempB_result=tuples._4();
 
-            Object[] temp_trajB= new Object[tempB_result.size()];
-
-            for (int i=0; i<tempB_result.size(); i++) {
-
-                ArrayList curr_TrajList=(ArrayList) tempB_result.get(i);
-/***/
-                Object[] trjB_arr= new Object[curr_TrajList.size()];
-
-                for (int j=0; j<trjB_arr.length; j++) {
-
-                 //   if (true)
-                   //     throw new HiveException("~~~~~~~~~~~~~~~foo: "+( ( (Object[]) ( ((Object[])curr_TrajList.get(j))[0] ) )[0]).getClass().getName() );
-
-                   // if (true)
-                     //   throw new HiveException("~~~~~~~~~~~~~~~foo: "+ length );
-
-                    trjB_arr[j]=((Object [])curr_TrajList.get(j));
-                }
-/****/
-                temp_trajB[i]=trjB_arr;
-            }
-
-            obj[3]=temp_trajB;
+            if (true)
+                throw new HiveException("foo:"+tempB_result.get(0)+"\n"+" foo (if equal 3):"+((Object[])tempB_result.get(0)).length +"\n"+ "longitute: "+((Object[])tempB_result.get(0))[0] );
 
             return obj;
 
