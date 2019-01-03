@@ -440,7 +440,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
         }
 
         @Override
-        public String terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
+        public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
@@ -457,7 +457,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             obj[2]=tuples._3();
             obj[3]=tuples._4();
 
-            return tuples.toString();
+            //return tuples.toString();
+
+            return obj;
         }
 
         static class QueueAggregationBuffer extends AbstractAggregationBuffer {
