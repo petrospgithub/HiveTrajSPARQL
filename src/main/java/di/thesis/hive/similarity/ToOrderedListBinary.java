@@ -455,16 +455,16 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             obj[0]=tuples._1();
             obj[1]=tuples._2();
-            //obj[2]=tuples._3();
-            //obj[3]=tuples._4();
+            obj[2]=tuples._3();
+            List tempB_result=tuples._4();
 
-            Object[] temp_trajA= new Object[((ArrayList)tuples._3()).size()];
+            Object[] trajB_ret= new Object[tempB_result.size()];
 
-            for (int i=0; i<temp_trajA.length; i++) {
-                temp_trajA[i]=((ArrayList)tuples._3()).get(i);
+            for (int i=0; i<tempB_result.size(); i++) {
+                trajB_ret[i]= tempB_result.get(i);
             }
 
-            obj[2]=temp_trajA;
+            obj[3]=trajB_ret;
 
             //return tuples.toString();
 
