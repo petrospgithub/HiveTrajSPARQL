@@ -339,7 +339,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 throws HiveException {
             QueueAggregationBuffer myagg = (QueueAggregationBuffer) agg;
 
-            Tuple4<List<Object>,List<Object>,Object,List<Object>> tuples = myagg.drainQueue();
+            Tuple4<List<Object>,List<Object>,Object,Object[]> tuples = myagg.drainQueue();
 
             if (tuples == null) {
                 return null;
@@ -444,7 +444,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
         public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
-            Tuple4<List<Object>,List<Object>,Object,List<Object>>tuples = myagg.drainQueue();
+            Tuple4<List<Object>,List<Object>,Object,Object[]>tuples = myagg.drainQueue();
             if (tuples == null) {
                 return null;
             }
@@ -456,6 +456,18 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             obj[0]=tuples._1();
             obj[1]=tuples._2();
             obj[2]=tuples._3();
+
+            ArrayList tempB_result= ((ArrayList)tuples._4()[0]);
+            Object[] trajB_ret= new Object[tempB_result.size()];
+
+            for (int i=0; i<tempB_result.size(); i++) {
+                trajB_ret[i]= tempB_result.get(i);
+            }
+
+            obj[3]=trajB_ret;
+
+
+            /*
             List tempB_result=tuples._4();
 
             Object[] trajB_ret= new Object[tempB_result.size()];
@@ -465,6 +477,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             }
 
             obj[3]=trajB_ret;
+*/
 
             //return tuples.toString();
 
@@ -510,7 +523,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             }
 
             @Nullable
-            Tuple4<List<Object>,List<Object>,Object,List<Object>> drainQueue() {
+            Tuple4<List<Object>,List<Object>,Object,Object[]> drainQueue() {
                 if (queueHandler == null) {
                     return null;
                 }
@@ -542,7 +555,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
                 queueHandler.clear();
 
-                Tuple4<List<Object>,List<Object>,Object,List<Object>> tuple4=new Tuple4<List<Object>,List<Object>,Object,List<Object>>(Arrays.asList(keys), Arrays.asList(values), trajA, Arrays.asList(trajB));
+                Tuple4<List<Object>,List<Object>,Object,Object[]> tuple4=new Tuple4<List<Object>,List<Object>,Object,Object[]>(Arrays.asList(keys), Arrays.asList(values), trajA, trajB);
 
                 return tuple4;
             }
