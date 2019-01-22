@@ -119,7 +119,7 @@ public class IndexKNNBinary extends GenericUDTF {
                 Long entry = (Long) tree_results.get(i);
                 forwardMapObj[0]=new LongWritable(entry);
                 forwardMapObj[1] = new LongWritable(rowID);
-                forwardMapObj[2] = trajectoryA;
+                forwardMapObj[2] = trajBinaryA;
 
 
                 for (int j=6; j<objects.length; j++) {
