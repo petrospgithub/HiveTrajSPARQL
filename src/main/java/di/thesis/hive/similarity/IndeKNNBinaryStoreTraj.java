@@ -147,17 +147,22 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
 
             List<Triplet> tree_results = retrievedObject.knn(trajectoryA, threshold, SF, k, minTtolerance, maxTtolerance, PF, w, eps, delta);
 
-            for (int i=0; i<tree_results.size(); i++) {
-                //Long entry = (Long) tree_results.get(i);
-                forwardMapObj[0]= new LongWritable(rowID);
-                forwardMapObj[1] = new DoubleWritable(tree_results.get(i).getDistance());
-                forwardMapObj[2] = new LongWritable(tree_results.get(i).getId());
+            try {
 
-                forwardMapObj[3] = trajBinaryA;
-                forwardMapObj[4] = new BytesWritable(SerDerUtil.trajectory_serialize(tree_results.get(i).getTrajectory()));
+                for (int i = 0; i < tree_results.size(); i++) {
+                    //Long entry = (Long) tree_results.get(i);
+                    forwardMapObj[0] = new LongWritable(rowID);
+                    forwardMapObj[1] = new DoubleWritable(tree_results.get(i).getDistance());
+                    forwardMapObj[2] = new LongWritable(tree_results.get(i).getId());
+
+                    forwardMapObj[3] = trajBinaryA;
+                    forwardMapObj[4] = new BytesWritable(SerDerUtil.trajectory_serialize(tree_results.get(i).getTrajectory()));
 
 
-                forward(forwardMapObj);
+                    forward(forwardMapObj);
+                }
+            } catch (NullPointerException e) {
+                //return null;
             }
 
         } catch (Exception e) {
