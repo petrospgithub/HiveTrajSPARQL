@@ -335,7 +335,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             //        LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~ value: "+value);
 
 
-            this.size = Math.abs( (int)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo) );
+            this.size = Math.abs( ((IntWritable)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get() );
 
             TupleWithKey tuple = new TupleWithKey(key, value, parameters[3], parameters[4]);
 
