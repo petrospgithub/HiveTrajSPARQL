@@ -460,6 +460,16 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             } catch (ClassCastException e) {
                 */
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
+                    LOG.info("trajBListRaw.get(i): "+trajBListRaw.get(i));
+                    LOG.info("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
+
+                    LOG.warn("trajBListRaw.get(i): "+trajBListRaw.get(i));
+                    LOG.warn("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
+
+                    LOG.error("trajBListRaw.get(i): "+trajBListRaw.get(i));
+                    LOG.error("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
+
+
                     trajBList.add(trajBListRaw.get(i));
                 }
            // }
