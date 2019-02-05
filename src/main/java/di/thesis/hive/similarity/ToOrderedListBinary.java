@@ -450,7 +450,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             final List<?> trajBListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajBListObj));
             final List<Object> trajBList = new ArrayList<Object>();
-
+/*
             //check!
             try {
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
@@ -458,10 +458,11 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                             PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
                 }
             } catch (ClassCastException e) {
+                */
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
                     trajBList.add(trajBListRaw.get(i));
                 }
-            }
+           // }
 
             myagg.merge(keyList, valueList, trajAListObj, trajBList);
         }
