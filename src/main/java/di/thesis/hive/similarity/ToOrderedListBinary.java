@@ -22,9 +22,7 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFParameterInfo;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-import org.apache.hadoop.io.BooleanWritable;
-import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.*;
 import scala.Tuple4;
 
 import javax.annotation.CheckForNull;
@@ -339,9 +337,6 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             this.size = Math.abs( ((IntWritable)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get() );
             TupleWithKey tuple=null;
 
-
-            new HiveException("~~~~~~~~~~~~~~~"+parameters[3]+"~~~~~~~~~~~~~~~"+parameters[3].getClass()+"~~~~~~~~~~~~~~~~"+parameters[4].getClass());
-
            if (parameters[3] instanceof byte[] && parameters[4] instanceof byte[]) {
                tuple = new TupleWithKey(key, value, new BytesWritable((byte[])parameters[3]), new BytesWritable((byte[])parameters[3]));
 
@@ -453,7 +448,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             final List<?> trajBListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajBListObj));
             final List<Object> trajBList = new ArrayList<Object>();
-/*
+
             //check!
             try {
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
@@ -461,23 +456,12 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                             PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
                 }
             } catch (ClassCastException e) {
-                */
+
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
-                    LOG.info("trajBListRaw.get(i): "+trajBListRaw.get(i));
-                    LOG.info("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
-
-                    LOG.warn("trajBListRaw.get(i): "+trajBListRaw.get(i));
-                    LOG.warn("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
-
-                    LOG.error("trajBListRaw.get(i): "+trajBListRaw.get(i));
-                    LOG.error("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
-
-
-                    new HiveException("trajBListRaw.get(i): "+trajBListRaw.get(i)+"\t trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
 
                     trajBList.add(trajBListRaw.get(i));
                 }
-           // }
+           }
 
             myagg.merge(keyList, valueList, trajAListObj, trajBList);
         }
@@ -495,8 +479,34 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             Object[] obj=new Object[4];
 
 
-            obj[0]=null;//tuples._1();
-            obj[1]=null;tuples._2();
+            if (!(tuples._1().get(0) instanceof LongWritable)) {
+
+                List<LongWritable> lwritable=new ArrayList<>();
+
+                for (int i=0; i<tuples._1().size(); i++) {
+                    lwritable.add(new LongWritable((long)tuples._1().get(i)));
+                }
+                obj[0]=lwritable;
+
+            } else {
+                obj[0]=tuples._1();
+            }
+
+            if (!(tuples._2().get(0) instanceof DoubleWritable)) {
+
+                List<DoubleWritable> dwritable=new ArrayList<>();
+
+                for (int i=0; i<tuples._2().size(); i++) {
+                    dwritable.add(new DoubleWritable((double)tuples._2().get(i)));
+                }
+                obj[1]=dwritable;
+
+            } else {
+                obj[1]=tuples._1();
+            }
+
+            //obj[0]=null;//tuples._1();
+            //obj[1]=null;//tuples._2();
             obj[2]=null;//tuples._3();
 
             ArrayList tempB_result= ((ArrayList)tuples._4()[0]);
