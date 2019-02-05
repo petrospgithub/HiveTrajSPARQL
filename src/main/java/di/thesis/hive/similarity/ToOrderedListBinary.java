@@ -147,11 +147,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             boolean reverseOrder = false;
             if (argOIs.length >= optionIndex + 1) {
 
-
-                LOG.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+argOIs[2].getTypeName());
-
-
-                String rawArgs = HiveUtils.getConstString(argOIs[2]);
+                //String rawArgs = HiveUtils.getConstString(argOIs[2]);
+                String rawArgs =  "-k -"+HiveUtils.getConstInt(argOIs[2]);
+                String rawArgs2 =  "-k -"+HiveUtils.getAsConstInt(argOIs[2]);
 
                 cl = parseOptions(rawArgs);
 
