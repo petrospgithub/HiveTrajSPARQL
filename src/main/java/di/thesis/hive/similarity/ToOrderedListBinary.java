@@ -23,6 +23,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BooleanWritable;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import scala.Tuple4;
 
@@ -471,7 +472,12 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             Object[] trajB_ret= new Object[tempB_result.size()];
 
             for (int i=0; i<tempB_result.size(); i++) {
-                trajB_ret[i]= tempB_result.get(i);
+
+                if (tempB_result.get(i) instanceof byte[]){
+                    trajB_ret[i]= new BytesWritable((byte[])tempB_result.get(i));
+                } else {
+                    trajB_ret[i]= tempB_result.get(i);
+                }
             }
 
             obj[3]=trajB_ret;
