@@ -38,7 +38,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 
 public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
-    private static final Log LOG = LogFactory.getLog(ToOrderedList.class.getName());
+    private static final Log LOG = LogFactory.getLog(ToOrderedListBinary.class.getName());
 
 
     @Override
