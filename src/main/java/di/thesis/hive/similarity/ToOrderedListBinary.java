@@ -502,7 +502,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 obj[1]=dwritable;
 
             } else {
-                obj[1]=tuples._1();
+                obj[1]=tuples._2();
             }
 
             //obj[0]=null;//tuples._1();
