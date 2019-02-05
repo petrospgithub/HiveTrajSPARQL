@@ -339,6 +339,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             this.size = Math.abs( ((IntWritable)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get() );
             TupleWithKey tuple=null;
 
+
+            new HiveException("~~~~~~~~~~~~~~~"+parameters[3]+"~~~~~~~~~~~~~~~"+parameters[3].getClass()+"~~~~~~~~~~~~~~~~"parameters[4].getClass())
+
            if (parameters[3] instanceof byte[] && parameters[4] instanceof byte[]) {
                tuple = new TupleWithKey(key, value, new BytesWritable((byte[])parameters[3]), new BytesWritable((byte[])parameters[3]));
 
@@ -494,7 +497,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             obj[0]=null;//tuples._1();
             obj[1]=null;tuples._2();
-            obj[2]=tuples._3();
+            obj[2]=null;//tuples._3();
 
             ArrayList tempB_result= ((ArrayList)tuples._4()[0]);
             Object[] trajB_ret= new Object[tempB_result.size()];
@@ -503,7 +506,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 trajB_ret[i]= tempB_result.get(i);
             }
 
-            obj[3]=trajB_ret;
+            obj[3]=null;//trajB_ret;
 
 
             /*
