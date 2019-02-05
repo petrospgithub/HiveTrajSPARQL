@@ -25,7 +25,7 @@ public class LCSSUDF extends GenericUDF {
     private SettableStructObjectInspector trajectoryB_structOI;
 
     private StringObjectInspector func_name;
-    private HiveDecimalObjectInspector eps;
+    private ObjectInspector epsOI;
     private IntObjectInspector d;
 
     @Override
@@ -42,7 +42,7 @@ public class LCSSUDF extends GenericUDF {
 
             func_name=(StringObjectInspector)objectInspectors[2];
 
-            eps=(HiveDecimalObjectInspector)objectInspectors[3];
+            epsOI = objectInspectors[3];
 
             d=(IntObjectInspector)objectInspectors[4];
 
@@ -71,8 +71,13 @@ public class LCSSUDF extends GenericUDF {
 
         String f=func_name.getPrimitiveJavaObject(deferredObjects[2].get());
 
-        double error=eps.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue();
+        double eps;
 
+        try {
+            eps = ((HiveDecimalObjectInspector)epsOI).getPrimitiveJavaObject(deferredObjects[3]).doubleValue();
+        } catch (java.lang.ClassCastException e) {
+            eps = ((WritableConstantDoubleObjectInspector)epsOI).get(deferredObjects[3]);
+        }
         int delta=d.get(deferredObjects[4].get());
 
         int[][] LCS_distance_matrix = new int[trajectoryA_length+1][trajectoryB_length+1];
@@ -121,7 +126,7 @@ public class LCSSUDF extends GenericUDF {
 
 
                 distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
-                if (distance<=error && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
+                if (distance<=eps && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
                     LCS_distance_matrix[i][j] = LCS_distance_matrix[i - 1][j - 1] + 1;
                 } else {
                     LCS_distance_matrix[i][j] = Math.max(LCS_distance_matrix[i - 1][j], LCS_distance_matrix[i][j - 1]);
@@ -146,7 +151,7 @@ public class LCSSUDF extends GenericUDF {
             trajB_timestamp = ((LongWritable) (trajectoryB_structOI.getStructFieldData(trajectoryB_listOI.getListElement(trajB, b-1), trajectoryB_structOI.getStructFieldRef("timestamp")))).get();
 
             distance=func.calculate(trajA_latitude, trajA_longitude, trajB_latitude, trajB_longitude);
-            if(distance<=error && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
+            if(distance<=eps && Math.abs(trajA_timestamp-trajB_timestamp)<=delta) {
                 a--;
                 b--;
             } else {

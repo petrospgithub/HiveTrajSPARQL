@@ -29,7 +29,9 @@ public class LCSSBinary extends GenericUDF {
     private BinaryObjectInspector trajB;
 
     private StringObjectInspector func_name;
-    private HiveDecimalObjectInspector eps;
+
+    private ObjectInspector epsOI;
+
     private IntObjectInspector d;
 
     @Override
@@ -44,7 +46,8 @@ public class LCSSBinary extends GenericUDF {
 
             func_name=(StringObjectInspector)objectInspectors[2];
 
-            eps=(HiveDecimalObjectInspector)objectInspectors[3];
+            epsOI = objectInspectors[3];
+
 
             d=(IntObjectInspector)objectInspectors[4];
 /*
@@ -76,7 +79,16 @@ public class LCSSBinary extends GenericUDF {
 
         String f = func_name.getPrimitiveJavaObject(deferredObjects[2].get());
 
-        double error = eps.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue();
+       // double error = eps.getPrimitiveJavaObject(deferredObjects[3].get()).doubleValue();
+
+
+        double eps;
+
+        try {
+            eps = ((HiveDecimalObjectInspector)epsOI).getPrimitiveJavaObject(deferredObjects[3]).doubleValue();
+        } catch (java.lang.ClassCastException e) {
+            eps = ((WritableConstantDoubleObjectInspector)epsOI).get(deferredObjects[3]);
+        }
 
         int delta = d.get(deferredObjects[4].get());
 
@@ -85,7 +97,7 @@ public class LCSSBinary extends GenericUDF {
         LCSS lcss=new LCSS(trajectoryA);
 
         try {
-            double sim=lcss.similarity(trajectoryB, f, error, delta);
+            double sim=lcss.similarity(trajectoryB, f, eps, delta);
 
             return new DoubleWritable(sim);
 

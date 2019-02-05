@@ -27,7 +27,7 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
 
     private BinaryObjectInspector queryOI = null;
 
-    private HiveDecimalObjectInspector dist_threshold;
+    private ObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
     private WritableLongObjectInspector traj_rowID;
@@ -40,7 +40,7 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
 
     private IntObjectInspector wOI;
 
-    private HiveDecimalObjectInspector epsOI;
+    private ObjectInspector epsOI;
     private IntObjectInspector deltaOI;
 
 
@@ -62,7 +62,7 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
             treeOI = (BinaryObjectInspector) objectInspectors[1];
 
             // k=(IntObjectInspector) objectInspectors[2];
-            dist_threshold = (HiveDecimalObjectInspector) objectInspectors[2];
+            dist_threshold =  objectInspectors[2];
             minT_tolerance = (IntObjectInspector) objectInspectors[3];
             maxT_tolerance = (IntObjectInspector) objectInspectors[4];
 
@@ -74,7 +74,7 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
             kOI = (IntObjectInspector) objectInspectors[8];
 
             wOI = (IntObjectInspector) objectInspectors[9];
-            epsOI = (HiveDecimalObjectInspector) objectInspectors[10];
+            epsOI = objectInspectors[10];
             deltaOI = (IntObjectInspector) objectInspectors[11];
 
 
@@ -132,7 +132,16 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
             PointST[] trajectoryA = SerDerUtil.trajectory_deserialize(trajBinaryA.getBytes());
 
 
-            double threshold = dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
+            //double threshold = dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
+
+            double threshold;
+
+            try {
+                threshold = ((HiveDecimalObjectInspector)dist_threshold).getPrimitiveJavaObject(objects[2]).doubleValue();
+            } catch (java.lang.ClassCastException e) {
+                threshold = ((WritableConstantDoubleObjectInspector)dist_threshold).get(objects[2]);
+            }
+
             int minTtolerance = minT_tolerance.get(objects[3]);
             int maxTtolerance = maxT_tolerance.get(objects[4]);
 
@@ -142,7 +151,17 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
 
             int k=kOI.get(objects[8]);
             int w=wOI.get(objects[9]);
-            double eps=epsOI.getPrimitiveJavaObject(objects[10]).doubleValue();
+
+           // double eps=epsOI.getPrimitiveJavaObject(objects[10]).doubleValue();
+
+            double eps;
+
+            try {
+                eps = ((HiveDecimalObjectInspector)epsOI).getPrimitiveJavaObject(objects[10]).doubleValue();
+            } catch (java.lang.ClassCastException e) {
+                eps = ((WritableConstantDoubleObjectInspector)epsOI).get(objects[10]);
+            }
+
             int delta=deltaOI.get(objects[11]);
 
             List<Triplet> tree_results = retrievedObject.knn(trajectoryA, threshold, SF, k, minTtolerance, maxTtolerance, PF, w, eps, delta);

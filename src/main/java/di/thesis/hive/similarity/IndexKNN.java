@@ -23,7 +23,7 @@ public class IndexKNN extends GenericUDTF {
     private ListObjectInspector listOI;
     private SettableStructObjectInspector structOI;
 
-    private HiveDecimalObjectInspector dist_threshold;
+    private ObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
     private WritableLongObjectInspector traj_rowID;
@@ -44,7 +44,7 @@ public class IndexKNN extends GenericUDTF {
             treeOI=(BinaryObjectInspector) objectInspectors[1];
 
             // k=(IntObjectInspector) objectInspectors[2];
-            dist_threshold=(HiveDecimalObjectInspector) objectInspectors[2];
+            dist_threshold= objectInspectors[2];
             minT_tolerance=(IntObjectInspector) objectInspectors[3];
             maxT_tolerance=(IntObjectInspector) objectInspectors[4];
 
@@ -100,7 +100,17 @@ public class IndexKNN extends GenericUDTF {
 
             Object traj=objects[0];
 
-            double threshold= dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
+            //double threshold= dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
+            double threshold;
+
+            try {
+                threshold = ((HiveDecimalObjectInspector)dist_threshold).getPrimitiveJavaObject(objects[2]).doubleValue();
+            } catch (java.lang.ClassCastException e) {
+                threshold = ((WritableConstantDoubleObjectInspector)dist_threshold).get(objects[2]);
+            }
+
+
+
             int minTtolerance= minT_tolerance.get(objects[3]);
             int maxTtolerance= maxT_tolerance.get(objects[4]);
 

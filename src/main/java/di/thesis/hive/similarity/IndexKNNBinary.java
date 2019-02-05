@@ -27,7 +27,7 @@ public class IndexKNNBinary extends GenericUDTF {
 
     private BinaryObjectInspector queryOI=null;
 
-    private HiveDecimalObjectInspector dist_threshold;
+    private ObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
     private WritableLongObjectInspector traj_rowID;
@@ -50,7 +50,7 @@ public class IndexKNNBinary extends GenericUDTF {
             treeOI=(BinaryObjectInspector) objectInspectors[1];
 
             // k=(IntObjectInspector) objectInspectors[2];
-            dist_threshold=(HiveDecimalObjectInspector) objectInspectors[2];
+            dist_threshold= objectInspectors[2];
             minT_tolerance=(IntObjectInspector) objectInspectors[3];
             maxT_tolerance=(IntObjectInspector) objectInspectors[4];
 
@@ -105,8 +105,13 @@ public class IndexKNNBinary extends GenericUDTF {
             BytesWritable trajBinaryA = queryOI.getPrimitiveWritableObject(objects[0]);
             PointST[] trajectoryA = SerDerUtil.trajectory_deserialize(trajBinaryA.getBytes());
 
+            double threshold;
 
-            double threshold= dist_threshold.getPrimitiveJavaObject(objects[2]).doubleValue();
+            try {
+                threshold = ((HiveDecimalObjectInspector)dist_threshold).getPrimitiveJavaObject(objects[2]).doubleValue();
+            } catch (java.lang.ClassCastException e) {
+                threshold = ((WritableConstantDoubleObjectInspector)dist_threshold).get(objects[2]);
+            }
             int minTtolerance= minT_tolerance.get(objects[3]);
             int maxTtolerance= maxT_tolerance.get(objects[4]);
 
