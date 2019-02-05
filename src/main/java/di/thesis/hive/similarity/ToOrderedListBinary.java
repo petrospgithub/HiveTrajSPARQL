@@ -23,7 +23,6 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BooleanWritable;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import scala.Tuple4;
 
@@ -338,15 +337,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             this.size = Math.abs( ((IntWritable)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get() );
 
-            TupleWithKey tuple=null;
+           // if (parameters[3] instanceof byte[] && par)
 
-            if (parameters[3] instanceof byte[] && parameters[4] instanceof byte[]) {
-                tuple = new TupleWithKey(key, value, new BytesWritable((byte[])parameters[3]), new BytesWritable((byte[])parameters[4]));
-
-            } else {
-                tuple = new TupleWithKey(key, value, parameters[3], parameters[4]);
-            }
-
+            TupleWithKey tuple = new TupleWithKey(key, value, parameters[3], parameters[4]);
 
             QueueAggregationBuffer myagg = (QueueAggregationBuffer) agg;
 
