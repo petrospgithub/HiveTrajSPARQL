@@ -470,6 +470,8 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                     LOG.error("trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
 
 
+                    new Exception("trajBListRaw.get(i): "+trajBListRaw.get(i)+"\t trajBListRaw.get(i).getClass(): "+trajBListRaw.get(i).getClass());
+
                     trajBList.add(trajBListRaw.get(i));
                 }
            // }
