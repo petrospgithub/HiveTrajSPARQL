@@ -20,6 +20,7 @@ import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFParameterInfo;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.IntWritable;
@@ -90,12 +91,14 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
         private StructField sizeField;
         private StructField reverseOrderField;
 
+        private IntObjectInspector foo;
 
         @Nonnegative
         private int size;
-        private boolean reverseOrder;
+        private boolean reverseOrder=false;
         private boolean sortByKey;
 
+        /*
         protected Options getOptions() {
             Options opts = new Options();
             opts.addOption("k", true, "To top-k (positive) or tail-k (negative) ordered queue");
@@ -175,6 +178,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 
             return cl;
         }
+*/
 
         @Override
         public ObjectInspector init(Mode mode, ObjectInspector[] argOIs) throws HiveException {
@@ -202,8 +206,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
                 //     LOG.warn("sortByKey "+this.keyOI);
                 //    LOG.warn("sortByKey "+this.valueOI);
 
+                this.foo=(IntObjectInspector) argOIs[2];
 
-                processOptions(argOIs);
+                //processOptions(argOIs);
             } else {// from partial aggregation
 
                 StructObjectInspector soi = (StructObjectInspector) argOIs[0];
@@ -328,6 +333,9 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
 */
             //          LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~ key: "+key);
             //        LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~ value: "+value);
+
+
+            this.size = Math.abs( (int)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo) );
 
             TupleWithKey tuple = new TupleWithKey(key, value, parameters[3], parameters[4]);
 
