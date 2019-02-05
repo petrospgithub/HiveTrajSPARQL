@@ -340,7 +340,7 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             TupleWithKey tuple=null;
 
 
-            new HiveException("~~~~~~~~~~~~~~~"+parameters[3]+"~~~~~~~~~~~~~~~"+parameters[3].getClass()+"~~~~~~~~~~~~~~~~"parameters[4].getClass())
+            new HiveException("~~~~~~~~~~~~~~~"+parameters[3]+"~~~~~~~~~~~~~~~"+parameters[3].getClass()+"~~~~~~~~~~~~~~~~"+parameters[4].getClass());
 
            if (parameters[3] instanceof byte[] && parameters[4] instanceof byte[]) {
                tuple = new TupleWithKey(key, value, new BytesWritable((byte[])parameters[3]), new BytesWritable((byte[])parameters[3]));
