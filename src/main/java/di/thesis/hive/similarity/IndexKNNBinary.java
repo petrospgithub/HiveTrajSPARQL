@@ -136,7 +136,17 @@ public class IndexKNNBinary extends GenericUDTF {
                     forwardMapObj[j-3]=objects[j];
                 }
 
-                forward(forwardMapObj);
+                try {
+                    forward(forwardMapObj);
+                } catch (ClassCastException e) {
+                    //Long entry = (Long) tree_results.get(i);
+                   // forwardMapObj[0]=new LongWritable(entry);
+                   // forwardMapObj[1] = new LongWritable(rowID);
+                    forwardMapObj[2] = trajBinaryA.getBytes();
+
+                    forward(forwardMapObj);
+
+                }
             }
 
             //return result;
