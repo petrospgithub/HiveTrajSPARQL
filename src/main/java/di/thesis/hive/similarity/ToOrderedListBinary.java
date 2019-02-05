@@ -451,14 +451,16 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             final List<?> trajBListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajBListObj));
             final List<Object> trajBList = new ArrayList<Object>();
 
-            /*
-            for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
-                trajBList.add(ObjectInspectorUtils.copyToStandardObject(trajBListRaw.get(i),
-                        PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
-            }
-            */
-            for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
-                trajBList.add(trajBListRaw.get(i));
+            //check!
+            try {
+                for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
+                    trajBList.add(ObjectInspectorUtils.copyToStandardObject(trajBListRaw.get(i),
+                            PrimitiveObjectInspectorFactory.writableBinaryObjectInspector));
+                }
+            } catch (ClassCastException e) {
+                for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
+                    trajBList.add(trajBListRaw.get(i));
+                }
             }
 
             myagg.merge(keyList, valueList, trajAListObj, trajBList);
@@ -477,8 +479,8 @@ public class ToOrderedListBinary extends AbstractGenericUDAFResolver {
             Object[] obj=new Object[4];
 
 
-            obj[0]=tuples._1();
-            obj[1]=tuples._2();
+            obj[0]=null;//tuples._1();
+            obj[1]=null;tuples._2();
             obj[2]=tuples._3();
 
             ArrayList tempB_result= ((ArrayList)tuples._4()[0]);
