@@ -30,7 +30,7 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
     private ObjectInspector dist_threshold;
     private IntObjectInspector minT_tolerance;
     private IntObjectInspector maxT_tolerance;
-    private WritableLongObjectInspector traj_rowID;
+    private ObjectInspector traj_rowID;
 
     private StringObjectInspector similarityFuncOI;
     private StringObjectInspector pointFuncOI;
@@ -66,7 +66,7 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
             minT_tolerance = (IntObjectInspector) objectInspectors[3];
             maxT_tolerance = (IntObjectInspector) objectInspectors[4];
 
-            traj_rowID = (WritableLongObjectInspector) objectInspectors[5];
+            traj_rowID = objectInspectors[5];
 
             similarityFuncOI = (StringObjectInspector) objectInspectors[6];
             pointFuncOI = (StringObjectInspector) objectInspectors[7];
@@ -119,7 +119,13 @@ public class IndeKNNBinaryStoreTraj extends GenericUDTF {
         try {
             BytesWritable tree = treeOI.getPrimitiveWritableObject(objects[1]);
 
-            long rowID = traj_rowID.get(objects[5]);
+            long rowID;
+
+            try {
+                rowID = ((WritableLongObjectInspector)traj_rowID).get(objects[5]);
+            } catch(ClassCastException e) {
+                rowID = ((JavaLongObjectInspector)traj_rowID).get(objects[5]);
+            }
 
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
             ObjectInput in = new ObjectInputStream(bis);
