@@ -411,7 +411,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             Object reverseOrderObj = internalMergeOI.getStructFieldData(partial, reverseOrderField);
             boolean reverseOrder = PrimitiveObjectInspectorFactory.writableBooleanObjectInspector.get(reverseOrderObj);
 
-            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;.
+            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
 
 
 
