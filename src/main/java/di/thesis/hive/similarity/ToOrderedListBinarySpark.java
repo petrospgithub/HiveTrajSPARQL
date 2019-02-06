@@ -340,6 +340,8 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
             QueueAggregationBuffer myagg = (QueueAggregationBuffer) agg;
 
+            myagg.size=Math.abs(((IntWritable) ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get());
+
             myagg.iterate(tuple);
         }
 
@@ -470,6 +472,9 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
             Tuple4<List<Object>,List<Object>,Object,Object[]>tuples = myagg.drainQueue();
+
+            int size=myagg.size;
+
             if (tuples == null) {
                 return null;
             }
@@ -482,7 +487,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
                 List<LongWritable> lwritable=new ArrayList<>();
 
-                for (int i=0; i<this.size+1; i++) {
+                for (int i=0; i<this.size; i++) {
                     lwritable.add(new LongWritable((long)tuples._1().get(i)));
                 }
                 obj[0]=lwritable;
@@ -495,7 +500,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
                 List<DoubleWritable> dwritable=new ArrayList<>();
 
-                for (int i=0; i<this.size+1; i++) {
+                for (int i=0; i<this.size; i++) {
                     dwritable.add(new DoubleWritable((double)tuples._2().get(i)));
                 }
                 obj[1]=dwritable;
