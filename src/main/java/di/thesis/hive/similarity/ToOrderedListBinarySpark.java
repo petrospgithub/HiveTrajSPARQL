@@ -84,7 +84,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
         @Nonnegative
         private int size;
-        private boolean reverseOrder=false;
+        private boolean reverseOrder=true;
         private boolean sortByKey;
 
         /*
@@ -473,7 +473,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
                 List<LongWritable> lwritable=new ArrayList<>();
 
-                for (int i=0; i<this.size; i++) {
+                for (int i=0; i<this.size+1; i++) {
                     lwritable.add(new LongWritable((long)tuples._1().get(i)));
                 }
                 obj[0]=lwritable;
@@ -486,7 +486,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
                 List<DoubleWritable> dwritable=new ArrayList<>();
 
-                for (int i=0; i<this.size; i++) {
+                for (int i=0; i<this.size+1; i++) {
                     dwritable.add(new DoubleWritable((double)tuples._2().get(i)));
                 }
                 obj[1]=dwritable;
