@@ -446,6 +446,12 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             final List<?> trajBListRaw = trajListOI.getList(HiveUtils.castLazyBinaryObject(trajBListObj));
             final List<Object> trajBList = new ArrayList<Object>();
 
+
+
+            if (true)
+                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+((ArrayList)trajBListRaw.get(0)).get(0)+" ~~~~~~~~~~~~~~~~~~~~~~~~"+((ArrayList)trajBListRaw.get(0)).getClass());
+
+
             //check!
       //      try {
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
