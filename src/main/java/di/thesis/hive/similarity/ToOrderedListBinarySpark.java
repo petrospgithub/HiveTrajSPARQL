@@ -415,11 +415,6 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
 
-
-
-            if (true)
-                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+size+" ~~~~~~~~~~~~~~~~~~~~~~~~");
-
             myagg.setOptions(size, reverseOrder);
 
             //       LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ check " + this.internalMergeOI.getAllStructFieldRefs());
@@ -481,6 +476,10 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
             // LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ tuples " + tuples );
             Object[] obj=new Object[4];
+
+
+            if (true)
+                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+size+" ~~~~~~~~~~~~~~~~~~~~~~~~");
 
 
             if (!(tuples._1().get(0) instanceof LongWritable)) {
