@@ -327,11 +327,6 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
             this.size = Math.abs(((IntWritable) ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get());
 
-
-            if (true)
-                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+this.size+" ~~~~~~~~~~~~~~~~~~~~~~~~"+ObjectInspectorUtils.copyToStandardObject(parameters[2], foo));
-
-
             TupleWithKey tuple=null;
 
            if (parameters[3] instanceof byte[] && parameters[4] instanceof byte[]) {
@@ -515,6 +510,9 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
             obj[3]=null;//trajB_ret;
 
+
+            if (true)
+                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+this.size+" ~~~~~~~~~~~~~~~~~~~~~~~~"+tempB_result);
 
             /*
             List tempB_result=tuples._4();
