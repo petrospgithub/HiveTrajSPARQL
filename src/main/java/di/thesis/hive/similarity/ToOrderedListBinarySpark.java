@@ -487,6 +487,10 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
           // if (true)
             //    throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+size+" ~~~~~~~~~~~~~~~~~~~~~~~~"+tuples._1().size());
 
+            if (true)
+                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+tuples+"~~~~~~~~");
+
+
 
             if (!(tuples._1().get(0) instanceof LongWritable)) {
 
@@ -520,8 +524,6 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
             ArrayList tempB_result= ((ArrayList)tuples._4()[0]);
 
-          if (true)
-            throw new UDFArgumentException(tempB_result.get(0)+"\n" +tempB_result.get(1)+"~~~~~~~~"+((ArrayList)(tempB_result.get(0))).get(0)+"\n" +"~~~~~~~~");
 
             Object[] trajB_ret= new Object[size];
 
