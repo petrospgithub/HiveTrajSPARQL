@@ -405,12 +405,19 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             }
 
             Object sizeObj = internalMergeOI.getStructFieldData(partial, sizeField);
+
             int size = PrimitiveObjectInspectorFactory.writableIntObjectInspector.get(sizeObj);
 
             Object reverseOrderObj = internalMergeOI.getStructFieldData(partial, reverseOrderField);
             boolean reverseOrder = PrimitiveObjectInspectorFactory.writableBooleanObjectInspector.get(reverseOrderObj);
 
-            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
+            UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;.
+
+
+
+            if (true)
+                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+size+" ~~~~~~~~~~~~~~~~~~~~~~~~");
+
             myagg.setOptions(size, reverseOrder);
 
             //       LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ check " + this.internalMergeOI.getAllStructFieldRefs());
@@ -509,10 +516,6 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             }
 
             obj[3]=null;//trajB_ret;
-
-
-            if (true)
-                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+this.size+" ~~~~~~~~~~~~~~~~~~~~~~~~"+tempB_result);
 
             /*
             List tempB_result=tuples._4();
