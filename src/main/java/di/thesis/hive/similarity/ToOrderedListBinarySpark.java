@@ -18,6 +18,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspecto
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.*;
 import scala.Tuple4;
+import scala.Tuple5;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -350,7 +351,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
                 throws HiveException {
             QueueAggregationBuffer myagg = (QueueAggregationBuffer) agg;
 
-            Tuple4<List<Object>,List<Object>,Object,Object[]> tuples = myagg.drainQueue();
+            Tuple5<List<Object>,List<Object>,Object,Object[], Integer> tuples = myagg.drainQueue();
 
             if (tuples == null) {
                 return null;
@@ -466,9 +467,9 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
         public Object[] terminate(@SuppressWarnings("deprecation") AggregationBuffer agg)
                 throws HiveException {
             UDAFToOrderedListEvaluator.QueueAggregationBuffer myagg = (UDAFToOrderedListEvaluator.QueueAggregationBuffer) agg;
-            Tuple4<List<Object>,List<Object>,Object,Object[]>tuples = myagg.drainQueue();
+            Tuple5<List<Object>,List<Object>,Object,Object[], Integer>tuples = myagg.drainQueue();
 
-            int size=myagg.size;
+            int size=tuples._5();
 
             if (tuples == null) {
                 return null;
@@ -577,7 +578,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             }
 
             @Nullable
-            Tuple4<List<Object>,List<Object>,Object,Object[]> drainQueue() {
+            Tuple5<List<Object>,List<Object>,Object,Object[], Integer> drainQueue() {
                 if (queueHandler == null) {
                     return null;
                 }
@@ -609,9 +610,9 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 
                 queueHandler.clear();
 
-                Tuple4<List<Object>,List<Object>,Object,Object[]> tuple4=new Tuple4<List<Object>,List<Object>,Object,Object[]>(Arrays.asList(keys), Arrays.asList(values), trajA, trajB);
+                Tuple5<List<Object>,List<Object>,Object,Object[], Integer> tuple5=new Tuple5<List<Object>,List<Object>,Object,Object[], Integer>(Arrays.asList(keys), Arrays.asList(values), trajA, trajB, size);
 
-                return tuple4;
+                return tuple5;
             }
 
             private void initQueueHandler() {
