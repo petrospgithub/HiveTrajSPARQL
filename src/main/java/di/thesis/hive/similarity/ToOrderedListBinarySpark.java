@@ -462,7 +462,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
 */
                 for (int i = 0, n = trajBListRaw.size(); i < n; i++) {
 
-                    trajBList.add((BytesWritable)trajBListRaw.get(i));
+                    trajBList.add(trajBListRaw.get(i));
                 }
            //}
             myagg.merge(keyList, valueList, trajAListObj, trajBList);
@@ -523,7 +523,7 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             if (true)
                 throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+(tempB_result.get(0)).getClass()+" ~~~~~~~~~~~~~~~~~~~~~~~~");
 
-            Object[] trajB_ret= new Object[tempB_result.size()];
+            Object[] trajB_ret= new Object[size];
 
             for (int i=0; i<size; i++) {
                 trajB_ret[i]= tempB_result.get(i);
