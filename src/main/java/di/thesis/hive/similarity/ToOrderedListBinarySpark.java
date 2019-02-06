@@ -7,6 +7,7 @@ import hivemall.utils.lang.NaturalComparator;
 import hivemall.utils.lang.Preconditions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
@@ -324,7 +325,13 @@ public class ToOrderedListBinarySpark extends AbstractGenericUDAFResolver {
             //        LOG.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~ value: "+value);
 
 
-            this.size = Math.abs( ((IntWritable)ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get() );
+            this.size = Math.abs(((IntWritable) ObjectInspectorUtils.copyToStandardObject(parameters[2], foo)).get());
+
+
+            if (true)
+                throw new UDFArgumentException("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ "+this.size+" ~~~~~~~~~~~~~~~~~~~~~~~~"+ObjectInspectorUtils.copyToStandardObject(parameters[2], foo));
+
+
             TupleWithKey tuple=null;
 
            if (parameters[3] instanceof byte[] && parameters[4] instanceof byte[]) {
