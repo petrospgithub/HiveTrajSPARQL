@@ -1,7 +1,7 @@
 package di.thesis.hive.stoperations;
 
-import di.thesis.hive.test.LoggerPolygon;
-import di.thesis.indexing.spatiotemporaljts.STRtree3D;
+import com.vividsolutions.jts.geom.Envelope;
+import di.thesis.indexing.spatialextension.STRtreeObjID;
 import di.thesis.indexing.types.EnvelopeST;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,14 +11,11 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.SettableStructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import utils.SerDerUtil;
-import utils.checking;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInput;
@@ -26,12 +23,12 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IndexIntersects3DBinary extends GenericUDTF {
+public class SP_TrajSPMBR extends GenericUDTF {
 
-    private static final Log LOG = LogFactory.getLog(IndexIntersects3DBinary.class.getName());
+    private static final Log LOG = LogFactory.getLog(SP_TrajSPMBR.class.getName());
 
 
-   // private SettableStructObjectInspector queryIO=null;
+    // private SettableStructObjectInspector queryIO=null;
     private BinaryObjectInspector queryOI=null;
 
 
@@ -142,16 +139,18 @@ public class IndexIntersects3DBinary extends GenericUDTF {
             BytesWritable mbb_bytes=queryOI.getPrimitiveWritableObject(objects[0]);
             EnvelopeST mbb= SerDerUtil.mbb_deserialize(mbb_bytes.getBytes());
 
+            Envelope poly=mbb.jtsGeom().getEnvelopeInternal();
+
             ByteArrayInputStream bis = new ByteArrayInputStream(tree.getBytes());
             ObjectInput in = new ObjectInputStream(bis);
-            STRtree3D retrievedObject = (STRtree3D)in.readObject();
+            STRtreeObjID retrievedObject = (STRtreeObjID)in.readObject();
 
-            mbb.expandBy(min_ext_lon, min_ext_lat);
+            poly.expandBy(min_ext_lon, min_ext_lat);
 
-            mbb.setMinT(mbb.getMinT()-min_ext_ts);
-            mbb.setMaxT(mbb.getMaxT()+max_ext_ts);
+            //poly.setMinT(mbb.getMinT()-min_ext_ts);
+            //poly.setMaxT(mbb.getMaxT()+max_ext_ts);
 
-            List tree_results = retrievedObject.queryID(mbb);
+            List tree_results = retrievedObject.queryID(poly);
 
             for (int i = 0; i < tree_results.size(); i++) {
                 Long entry = (Long) tree_results.get(i);
@@ -168,4 +167,5 @@ public class IndexIntersects3DBinary extends GenericUDTF {
     public void close() throws HiveException {
 
     }
+
 }

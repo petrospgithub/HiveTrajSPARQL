@@ -27,7 +27,7 @@ import java.util.List;
 
 public class IndexIntersects3D extends GenericUDTF {
 
-    private static final Log LOG = LogFactory.getLog(LoggerPolygon.class.getName());
+    private static final Log LOG = LogFactory.getLog(IndexIntersects3D.class.getName());
 
 
     private SettableStructObjectInspector queryOI=null;

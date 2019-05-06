@@ -12,6 +12,8 @@
 
     <dependencies>
 
+
+
         <!-- https://mvnrepository.com/artifact/org.apache.hivemall/hivemall-all -->
         <dependency>
             <groupId>org.apache.hivemall</groupId>
